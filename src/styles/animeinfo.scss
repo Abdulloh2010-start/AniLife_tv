@@ -1,0 +1,263 @@
+$bg-color-dark: #121212;
+$text-color-dark: #fff;
+$card-bg-dark: #1c1c1c;
+$info-block-bg-dark: #00083f;
+$link-color-dark: #00aaff;
+$border-color-dark: #ccc;
+$select-options-bg-dark: #0c004a;
+$select-option-hover-dark: #02007e;
+$select-option-selected-bg-dark: #e0e0e0;
+$select-option-selected-text-dark: black;
+$genre-bg-dark: #007bff;
+$arrow-color-dark: #fff;
+
+$bg-color-light: #f0f2f5;
+$text-color-light: #333;
+$card-bg-light: #fff;
+$info-block-bg-light: #fff;
+$link-color-light: #007bff;
+$border-color-light: #ccc;
+$select-options-bg-light: #fff;
+$select-option-hover-light: #f0f0f0;
+$select-option-selected-bg-light: #e0e0e0;
+$select-option-selected-text-light: black;
+$genre-bg-light: #e9ecef;
+$genre-text-light: #495057;
+$arrow-color-light: #333;
+
+.anime-info {
+  padding: 20px;
+  color: $text-color-dark;
+  max-width: 1000px;
+  margin: 0 auto;
+
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+  }
+
+  .info-block {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+
+    img {
+      width: 250px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    .text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      .genre {
+        display: inline-block;
+        background-color: $genre-bg-dark;
+        color: $text-color-dark;
+        border-radius: 0.5rem;
+        padding: 0.2rem 0.5rem;
+        margin-right: 0.5rem;
+        font-size: 0.9rem;
+      }
+
+      p {
+        margin: 0;
+      }
+    }
+  }
+
+  .episodes {
+    width: 900px;
+    height: 580px;
+    background: $info-block-bg-dark;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    padding-left: 20px;
+    padding-top: 20px;
+
+    .episodes-notfound {
+      font-size: 50px;
+      text-align: center;
+    }
+  }
+
+  .custom-select {
+    position: relative;
+    width: 860px;
+    margin-bottom: 20px;
+
+    &__trigger {
+      color: $text-color-dark;
+      width: 100%;
+      padding: 0.5rem 1rem;
+      background: transparent;
+      border: 1px solid $border-color-dark;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .arrow {
+      border: solid $arrow-color-dark;
+      border-width: 0 2px 2px 0;
+      display: inline-block;
+      padding: 3px;
+      transform: rotate(45deg);
+      transition: transform 0.2s ease, border-color 0.3s ease;
+      &.open {
+        transform: rotate(-135deg);
+      }
+    }
+
+    &__options {
+      position: absolute;
+      top: calc(100% + 4px);
+      width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      background: $select-options-bg-dark;
+      border: 1px solid $border-color-dark;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+
+    &__option {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      &:hover {
+        background: $select-option-hover-dark;
+      }
+      &.selected {
+        background: $select-option-selected-bg-dark;
+        font-weight: bold;
+        color: $select-option-selected-text-dark;
+      }
+    }
+  }
+
+  .video-player {
+    margin-bottom: 20px;
+
+    video {
+      width: 80%;
+      max-width: 600px;
+      max-height: 600px;
+      border-radius: 10px;
+      border: 2px solid $link-color-dark; 
+    }
+  }
+}
+
+[data-theme="light"] {
+  .anime-info {
+    color: $text-color-light;
+
+    .info-block {
+      .text {
+        .genre {
+          background-color: $genre-bg-light;
+          color: $genre-text-light;
+        }
+      }
+    }
+
+    .episodes {
+      background: $info-block-bg-light;
+    }
+
+    .custom-select {
+      &__trigger {
+        color: $text-color-light;
+        background: $select-options-bg-light;
+        border-color: #ddd;
+      }
+
+      .arrow {
+        border-color: $arrow-color-light;
+      }
+
+      &__options {
+        background: $select-options-bg-light;
+        border-color: #ddd;
+      }
+
+      &__option {
+        &:hover {
+          background: $select-option-hover-light;
+        }
+      }
+    }
+
+    .video-player {
+      video {
+        border-color: $link-color-light;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .anime-info {
+    padding: 10px;
+
+    h1 {
+      font-size: 1.5rem;
+      text-align: center;
+    }
+
+    .info-block {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+
+      img {
+        width: 100%;
+        max-width: 300px;
+      }
+
+      .text {
+        align-items: center;
+
+        .genre {
+          margin-bottom: 0.5rem;
+        }
+      }
+    }
+
+    .episodes {
+      width: 100%;
+      height: auto;
+      padding: 15px;
+    }
+
+    .custom-select {
+      width: 100%;
+
+      &__trigger {
+        font-size: 0.95rem;
+        padding: 0.5rem;
+      }
+
+      &__option {
+        font-size: 0.95rem;
+        padding: 0.5rem;
+      }
+    }
+
+    .video-player {
+      display: flex;
+      justify-content: center;
+
+      video {
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+      }
+    }
+  }
+}

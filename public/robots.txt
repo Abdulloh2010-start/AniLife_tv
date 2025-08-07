@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://anilifetv.vercel.app/sitemap.xml
