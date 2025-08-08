@@ -29,7 +29,6 @@ export default function LoginPage(){
   const [errorPasswordSignIn, setErrorPasswordSignIn] = useState("");
   const [generalErrorSignIn, setGeneralErrorSignIn] = useState("");
 
-  const [nameSignUp, setNameSignUp] = useState("");
   const [emailSignUp, setEmailSignUp] = useState("");
   const [passwordSignUp, setPasswordSignUp] = useState("");
   const [errorEmailSignUp, setErrorEmailSignUp] = useState("");
@@ -85,16 +84,12 @@ export default function LoginPage(){
   const handleRegister = async (e) => {
     e.preventDefault();
     setErrorEmailSignUp(""); setErrorPasswordSignUp(""); setGeneralErrorSignUp(""); setMessage("");
-    if (!nameSignUp) {
-      setGeneralErrorSignUp("Введите имя");
-      return;
-    }
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, emailSignUp, passwordSignUp);
       await sendEmailVerification(userCredential.user);
       setMessage("Проверьте почту");
       setIsRegistering(false);
-      setNameSignUp(""); setEmailSignUp(""); setPasswordSignUp("");
+      setEmailSignUp(""); setPasswordSignUp("");
     } catch (err) {
       const msg = getShortErrorMessage(err.code);
       if (err.code === "auth/email-already-in-use" || err.code === "auth/invalid-email") {
@@ -121,15 +116,11 @@ export default function LoginPage(){
           </div>
           <span className="black none">или email</span>
           <div className="input-group">
-            <input type="text" id="name" placeholder={generalErrorSignUp && <p className="error general-error">{generalErrorSignUp}</p>} value={nameSignUp} onChange={e => setNameSignUp(e.target.value)} required />
-            <label htmlFor="name">Имя</label>
-          </div>
-          <div className="input-group">
-            <input type="email" id="email-signup" placeholder={errorEmailSignUp} value={emailSignUp} onChange={e => { setEmailSignUp(e.target.value); if(errorEmailSignUp) setErrorEmailSignUp(""); if(generalErrorSignUp) setGeneralErrorSignUp(""); }} className={errorEmailSignUp ? "input-error" : ""} required />
+            <input type="email" id="email-signup" placeholder={errorEmailSignUp} value={emailSignUp} onChange={e => { setEmailSignUp(e.target.value); if(errorEmailSignUp) setErrorEmailSignUp(""); if(generalErrorSignUp) setGeneralErrorSignUp(""); }} className={errorEmailSignUp ? "input-error" : ""} required/>
             <label htmlFor="email-signup">Email</label>
           </div>
           <div className="input-group">
-            <input type="password" id="password-signup" placeholder={errorPasswordSignUp} value={passwordSignUp} onChange={e => { setPasswordSignUp(e.target.value); if(errorPasswordSignUp) setErrorPasswordSignUp(""); if(generalErrorSignUp) setGeneralErrorSignUp(""); }} className={errorPasswordSignUp ? "input-error" : ""} required />
+            <input type="password" id="password-signup" placeholder={errorPasswordSignUp} value={passwordSignUp} onChange={e => { setPasswordSignUp(e.target.value); if(errorPasswordSignUp) setErrorPasswordSignUp(""); if(generalErrorSignUp) setGeneralErrorSignUp(""); }} className={errorPasswordSignUp ? "input-error" : ""} required/>
             <label htmlFor="password-signup">Пароль</label>
           </div>
           <button type="submit">Зарегистрироваться</button>
@@ -146,11 +137,11 @@ export default function LoginPage(){
           </div>
           <span className="black none">или email и пароль</span>
           <div className="input-group">
-            <input type="email" id="email-signin" placeholder={errorEmailSignIn} value={emailSignIn} onChange={e => { setEmailSignIn(e.target.value); if(errorEmailSignIn) setErrorEmailSignIn(""); if(generalErrorSignIn) setGeneralErrorSignIn(""); }} className={errorEmailSignIn ? "input-error" : ""} required />
+            <input type="email" id="email-signin" placeholder={errorEmailSignIn} value={emailSignIn} onChange={e => { setEmailSignIn(e.target.value); if(errorEmailSignIn) setErrorEmailSignIn(""); if(generalErrorSignIn) setGeneralErrorSignIn(""); }} className={errorEmailSignIn ? "input-error" : ""} required/>
             <label htmlFor="email-signin">Email</label>
           </div>
           <div className="input-group">
-            <input type="password" id="password-signin" placeholder={errorPasswordSignIn} value={passwordSignIn} onChange={e => { setPasswordSignIn(e.target.value); if(errorPasswordSignIn) setErrorPasswordSignIn(""); if(generalErrorSignIn) setGeneralErrorSignIn(""); }} className={errorPasswordSignIn ? "input-error" : ""} required />
+            <input type="password" id="password-signin" placeholder={errorPasswordSignIn} value={passwordSignIn} onChange={e => { setPasswordSignIn(e.target.value); if(errorPasswordSignIn) setErrorPasswordSignIn(""); if(generalErrorSignIn) setGeneralErrorSignIn("");}} className={errorPasswordSignIn ? "input-error" : ""} required/>
             <label htmlFor="password-signin">Пароль</label>
           </div>
           <a style={{ marginBottom: 10 }}>Забыли пароль?</a>
