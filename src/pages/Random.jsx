@@ -1,41 +1,82 @@
 import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import AnimePlayer from '../components/AnimePlayer';
+import Hls from 'hls.js';
 import '../styles/random.scss';
 
-const getPosterUrl = (posters) => {
-  const rawPath = posters?.original?.url || posters?.medium?.url || '';
-  return rawPath
-    ? `https://static-libria.weekstorm.one${rawPath}`
-    : '/fallback-poster.png';
+const getPosterUrl = (poster) => {
+  const rawPath = poster?.src || poster?.preview || '';
+  return rawPath ? `https://anilibria.top${rawPath}` : '/fallback-poster.png';
 };
 
 export default function Random() {
   const [anime, setAnime] = useState(null);
+  const [episodes, setEpisodes] = useState([]);
+  const [currentEpisode, setCurrentEpisode] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedEp, setSelectedEp] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const fetchRandom = () => {
-    setLoading(true);
-    setError(null);
-    setAnime(null);
-    axios.get('https://api.anilibria.tv/v3/title/random')
-      .then(res => {
-        const data = res.data;
-        setAnime(data);
-        const episodes = data.player?.list || {};
-        const firstKey = Object.keys(episodes)[0] || null;
-        setSelectedEp(firstKey);
-      })
-      .catch(err => {
-        console.error('Ошибка получения случайного аниме:', err);
-        setError('Не удалось загрузить случайное аниме. Попробуйте ещё раз.');
-      })
-      .finally(() => setLoading(false));
+  const fetchRandom = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setAnime(null);
+      setEpisodes([]);
+      setCurrentEpisode(null);
+
+      const randomRes = await axios.get('https://anilibria.top/api/v1/anime/releases/random');
+      if (!Array.isArray(randomRes.data) || randomRes.data.length === 0) {
+        throw new Error('API вернуло пустой ответ');
+      }
+      const release = randomRes.data[0];
+
+      const detailsRes = await axios.get(
+        `https://anilibria.top/api/v1/anime/releases/${release.alias}`
+      );
+      const fullAnime = detailsRes.data;
+      setAnime(fullAnime);
+      setEpisodes(fullAnime.episodes || []);
+
+      if (fullAnime.episodes.length > 0) {
+        loadEpisode(fullAnime.episodes[0].id);
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Не удалось загрузить случайное аниме.');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const loadEpisode = async (episodeId) => {
+    try {
+      const epRes = await axios.get(
+        `https://anilibria.top/api/v1/anime/releases/episodes/${episodeId}`
+      );
+      setCurrentEpisode(epRes.data);
+    } catch (err) {
+      console.error(err);
+      setError('Эпизод не найден');
+    }
+  };
+
+  useEffect(() => {
+    fetchRandom();
+  }, []);
+
+  useEffect(() => {
+    if (currentEpisode?.hls_720) {
+      const video = document.getElementById('video-player');
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(currentEpisode.hls_720);
+        hls.attachMedia(video);
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = currentEpisode.hls_720;
+      }
+    }
+  }, [currentEpisode]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -43,86 +84,51 @@ export default function Random() {
         setDropdownOpen(false);
       }
     };
-    fetchRandom();
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const toggleDropdown = () => setDropdownOpen(prev => !prev);
-  const handleSelect = (ep) => {
-    setSelectedEp(ep);
-    setDropdownOpen(false);
-  };
+  return (
+    <div className="random-anime">
+      <button className="random-anime__btn" onClick={fetchRandom} disabled={loading}>
+        {loading ? 'Загрузка...' : 'Случайное аниме'}
+      </button>
+      {error && <p className="error">{error}</p>}
 
-  const renderInfo = () => {
-    if (!anime) return null;
-    const { names, description, posters, genres, season, status, player } = anime;
-    const title = names?.ru || names?.en || 'Без названия';
-    const poster = getPosterUrl(posters);
-    const episodes = player?.list || {};
-    const episodeKeys = Object.keys(episodes);
-    const hasEpisodes = episodeKeys.length > 0;
-
-    return (
-      <div className="random-anime__info">
-        <h2 className='title'>{title}</h2>
-        <div className="info-block">
-          <img src={poster} alt={title} loading='lazy'/>
-          <div className="text">
-            <p><strong>Описание:</strong> {description || 'Нет описания'}</p>
-            <p><strong>Жанры:</strong> {genres?.join(', ') || '—'}</p>
-            <p><strong>Сезон:</strong> {season?.year || ''} {season?.string || '—'}</p>
-            <p><strong>Статус:</strong> {status?.string || '—'}</p>
+      {anime && (
+        <>
+          <h2 className='title'>{anime.name?.main}</h2>
+          <div className="info-block">
+            <img src={getPosterUrl(anime.poster)} alt={anime.name?.main} />
+            <div>
+              <p className='text'><strong>Описание:</strong> {anime.description || none}</p>
+              <p className='text'><strong>Жанры:</strong>{' '}{anime.genres?.map((g) => (<span key={g.id} className="genre">{g.name}</span>))}</p>
+              <p className='text'><strong>Сезон:</strong> {anime.season?.description} {anime.year}</p>
+              <p className='text'><strong>Возраст:</strong> {anime.age_rating?.label}</p>
+            </div>
           </div>
-        </div>
-        <div className="episodes">
-          {!hasEpisodes ? (
-            <div className="episodes-notfound">Не найдено Эпизодов!</div>
-          ) : (
+
+          <div className="episodes">
             <div className="custom-select" ref={dropdownRef}>
-              <button className="custom-select__trigger" onClick={toggleDropdown}>
-                {selectedEp ? `Серия ${selectedEp}` : 'Выбрать серию'}
+              <button className="custom-select__trigger" onClick={() => setDropdownOpen(!dropdownOpen)}>
+                {currentEpisode ? `Серия ${currentEpisode.ordinal}` : 'Выбрать серию'}
                 <span className={`arrow ${dropdownOpen ? 'open' : ''}`} />
               </button>
               {dropdownOpen && (
                 <div className="custom-select__options">
-                  {episodeKeys.map(ep => (
-                    <div key={ep} className={`custom-select__option ${selectedEp === ep ? 'selected' : ''}`} onClick={() => handleSelect(ep)}>Серия {ep}</div>
-                  ))}
+                  {episodes.map((ep) => (<div key={ep.id} className={`custom-select__option ${currentEpisode?.id === ep.id ? 'selected' : ''}`} onClick={() => { loadEpisode(ep.id); setDropdownOpen(false);}}>Серия {ep.ordinal}</div>))}
                 </div>
               )}
             </div>
-          )}
-          {hasEpisodes && selectedEp && (
-            <div className="episode-player">
-              {(() => {
-                const epData = episodes[selectedEp];
-                const videoUrl = epData.hls?.fhd || epData.hls?.hd || epData.hls?.sd;
-                const fullUrl = videoUrl ? `https://${player.host}${videoUrl}` : null;
-                return fullUrl ? (
-                  <AnimePlayer url={fullUrl} />
-                ) : (
-                  <p>Контент заблокирован для просмотра</p>
-                );
-              })()}
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
 
-  return (
-    <div className="random-anime">
-      <button
-        className="random-anime__btn"
-        onClick={fetchRandom}
-        disabled={loading}
-      >
-        {loading ? 'Загрузка...' : 'Случайное аниме'}
-      </button>
-      {error && <p className="random-anime__error">{error}</p>}
-      {renderInfo()}
+            {currentEpisode && (
+              <div className="video-player">
+                <video id="video-player" controls></video>
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
-};
+}

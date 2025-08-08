@@ -4,11 +4,96 @@ import axios from 'axios';
 import AnimePlayer from '../components/AnimePlayer';
 import '../styles/animeinfo.scss';
 
-const getPosterUrl = (posters) => {
-  const rawPath = posters?.original?.url || posters?.medium?.url || '';
-  return rawPath
-    ? `https://static-libria.weekstorm.one${rawPath}`
-    : '/fallback-poster.png';
+const STATIC_BASE = 'https://static-libria.weekstorm.one';
+
+const normalizePosterUrl = (anime) => {
+  if (!anime) return '/fallback-poster.png';
+
+  const p = anime.posters ?? anime.poster ?? anime;
+
+  const candidates = [];
+
+  if (p?.original?.url) candidates.push(p.original.url);
+  if (p?.small?.url) candidates.push(p.small.url);
+  if (p?.medium?.url) candidates.push(p.medium.url);
+
+  if (p?.optimized?.src) candidates.push(p.optimized.src);
+  if (p?.optimized?.preview) candidates.push(p.optimized.preview);
+  if (p?.preview) candidates.push(p.preview);
+  if (p?.src) candidates.push(p.src);
+  if (p?.thumbnail) candidates.push(p.thumbnail);
+
+  if (anime?.poster?.src) candidates.push(anime.poster.src);
+  if (anime?.poster?.preview) candidates.push(anime.poster.preview);
+  if (anime?.poster?.thumbnail) candidates.push(anime.poster.thumbnail);
+
+  if (typeof p === 'string' && p) candidates.push(p);
+
+  const raw = candidates.find(Boolean) || '';
+
+  if (!raw) return '/fallback-poster.png';
+
+  if (raw.startsWith('http://') || raw.startsWith('https://')) return raw;
+  if (raw.startsWith('//')) return `https:${raw}`;
+  const normalized = raw.startsWith('/') ? raw : `/${raw}`;
+  return `${STATIC_BASE}${normalized}`;
+};
+
+const resolveTitle = (obj) => {
+  if (!obj) return 'Без названия';
+  if (obj.names) return obj.names.ru || obj.names.en || obj.names.original || 'Без названия';
+  if (obj.name) return obj.name.main || obj.name.english || obj.name.alternative || 'Без названия';
+  return obj.title || obj.alias || 'Без названия';
+};
+
+const renderGenres = (genres) => {
+  if (!Array.isArray(genres) || genres.length === 0) return null;
+  return genres.map((item, index) => {
+    const label = typeof item === 'string' ? item : item?.name || item?.label || String(item);
+    return (
+      <span key={index} className="genre">
+        {label}
+      </span>
+    );
+  });
+};
+
+const resolveVideoUrl = (epData, playerHost) => {
+  if (!epData) return null;
+
+  const candidate =
+    epData.hls_1080 ||
+    epData.hls_720 ||
+    epData.hls_480 ||
+    epData.file ||
+    epData.url ||
+    epData.src ||
+    epData.link;
+
+  if (!candidate) return null;
+
+  if (candidate.startsWith('http://') || candidate.startsWith('https://')) return candidate;
+  if (candidate.startsWith('//')) return `https:${candidate}`;
+  if (candidate.startsWith('/')) {
+    if (playerHost) {
+      const host = playerHost.replace(/^https?:\/\//, '').replace(/\/$/, '');
+      return `https://${host}${candidate}`;
+    }
+    return candidate;
+  }
+  if (playerHost) {
+    const host = playerHost.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    return `https://${host}/${candidate}`;
+  }
+  return candidate;
+};
+
+const resolveStatus = (anime) => {
+  if (!anime) return '—';
+  if (anime.is_ongoing) return 'Выпускается';
+  if (anime.is_in_production) return 'В производстве';
+  if (anime.is_blocked_by_copyrights) return 'Заблокировано';
+  return 'Завершено';
 };
 
 export default function AnimeInfo() {
@@ -16,26 +101,64 @@ export default function AnimeInfo() {
   const [anime, setAnime] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedEp, setSelectedEp] = useState(null);
+  const [episodesMap, setEpisodesMap] = useState({});
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
     if (!id) return;
-    axios
-      .get(`https://api.anilibria.tv/v3/title?id=${id}`)
-      .then(res => {
-        setAnime(res.data);
-        const eps = res.data.player?.list || {};
-        const firstKey = Object.keys(eps)[0] || null;
-        setSelectedEp(firstKey);
-      })
-      .catch(err => console.error('Ошибка загрузки аниме:', err))
-      .finally(() => setLoading(false));
+
+    setLoading(true);
+    setAnime(null);
+    setSelectedEp(null);
+    setEpisodesMap({});
+
+    const fetchAnime = async () => {
+      try {
+        const url = `https://anilibria.top/api/v1/anime/releases/${encodeURIComponent(id)}`;
+        const { data } = await axios.get(url);
+        const release = data?.release ?? data;
+
+        let epsMap = {};
+
+        if (release?.player?.list) {
+          const rawList = release.player.list;
+          if (Array.isArray(rawList)) {
+            rawList.forEach((episode, i) => {
+              const key = (episode?.episode || episode?.number || episode?.ep || (i + 1)).toString();
+              epsMap[key] = episode;
+            });
+          } else if (typeof rawList === 'object') {
+            epsMap = rawList;
+          }
+        } else if (Array.isArray(release?.episodes)) {
+          release.episodes.forEach((episode, i) => {
+            const key = (episode?.episode || episode?.number || (i + 1)).toString();
+            epsMap[key] = episode;
+          });
+        } else if (release?.external_player) {
+          epsMap['external'] = { external: true, url: release.external_player };
+        }
+
+        setAnime(release);
+        setEpisodesMap(epsMap);
+        setSelectedEp(Object.keys(epsMap)[0] || null);
+      } catch (error) {
+        console.warn('[AnimeInfo] Fetch error:', error?.message || error);
+        setAnime(null);
+        setEpisodesMap({});
+        setSelectedEp(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnime();
   }, [id]);
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
       }
     };
@@ -43,60 +166,135 @@ export default function AnimeInfo() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  if (loading) return <div className="anime-info"><p>Загрузка...</p></div>;
-  if (!anime) return <div className="anime-info"><p>Аниме не найдено</p></div>;
+  if (loading) {
+    return (
+      <div className="anime-info">
+        <p>Загрузка...</p>
+      </div>
+    );
+  }
 
-  const { names, description, posters, genres, season, status, player } = anime;
-  const title = names?.ru || names?.en || 'Без названия';
-  const poster = getPosterUrl(posters);
-  const episodes = player?.list || {};
-  const episodeKeys = Object.keys(episodes);
+  if (!anime) {
+    return (
+      <div className="anime-info">
+        <p>Аниме не найдено</p>
+      </div>
+    );
+  }
+
+  const title = resolveTitle(anime);
+  const poster = normalizePosterUrl(anime);
+  const description = anime.description || anime.notification || anime.descr || '';
+  const genres = anime.genres || anime.type?.genres || anime.genres_list || [];
+  const season = anime.season || anime.season_info || null;
+  const playerHost = anime.player?.host || '';
+
+  const episodeKeys = Object.keys(episodesMap);
   const hasEpisodes = episodeKeys.length > 0;
 
-  const toggleDropdown = () => setDropdownOpen(prev => !prev);
-  const handleSelect = (ep) => {
+  const toggleDropdown = () => setDropdownOpen((open) => !open);
+  const handleSelectEpisode = (ep) => {
     setSelectedEp(ep);
     setDropdownOpen(false);
+  };
+
+  const currentEpData = selectedEp ? episodesMap[selectedEp] : null;
+
+  const renderPlayer = () => {
+    if (!currentEpData) return <p>Видео недоступно для этой серии</p>;
+
+    if (currentEpData.external && currentEpData.url) {
+      const extUrl = currentEpData.url.startsWith('//') ? `https:${currentEpData.url}` : currentEpData.url;
+      return (
+        <div>
+          <p>Видео доступно во внешнем плеере:</p>
+          <a href={extUrl} target="_blank" rel="noreferrer noopener">
+            Открыть внешний плеер
+          </a>
+        </div>
+      );
+    }
+
+    const videoUrl = resolveVideoUrl(currentEpData, playerHost);
+
+    if (!videoUrl) return <p>Видео недоступно для этой серии</p>;
+
+    return <AnimePlayer url={videoUrl} />;
   };
 
   return (
     <div className="anime-info">
       <h1>{title}</h1>
+
       <div className="info-block">
-        <img src={poster} alt={title} loading='lazy'/>
+        <img
+          src={poster}
+          alt={title}
+          loading="lazy"
+          onError={(e) => {
+            e.currentTarget.src = '/fallback-poster.png';
+          }}
+        />
         <div className="text">
-          <p><strong>Описание:</strong> {description || 'Нет описания'}</p>
           <p>
-            <strong>Жанры:</strong>{' '}
-            {genres && genres.length > 0 ? (
-              genres.map((g, idx) => (
-                <span key={idx} className="genre">{g}</span>
-              ))
-            ) : (
-              '—'
-            )}
+            <strong>Описание:</strong> {description || 'Нет описания'}
           </p>
-          <p><strong>Сезон:</strong> {season?.year || ''} {season?.string || '—'}</p>
-          <p><strong>Статус:</strong> {status?.string || '—'}</p>
+          <p>
+            <strong>Жанры:</strong> {renderGenres(genres) || '—'}
+          </p>
+          <p>
+            <strong>Сезон:</strong> {season?.year || season?.description || season?.value || '—'}
+          </p>
+          <p>
+            <strong>Статус:</strong> {resolveStatus(anime)}
+          </p>
         </div>
       </div>
 
       <div className="episodes">
         {!hasEpisodes ? (
-          <p className='episodes-notfound'>Контент заблокирован для просмотра</p>
+          anime.external_player ? (
+            <div className="external-player">
+              <p>Видео доступно через внешний плеер:</p>
+              <a
+                href={anime.external_player.startsWith('//') ? `https:${anime.external_player}` : anime.external_player}
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                Открыть внешний плеер
+              </a>
+            </div>
+          ) : (
+            <p className="episodes-notfound">Контент заблокирован для просмотра</p>
+          )
         ) : (
           <div className="custom-select" ref={dropdownRef}>
-            <button className="custom-select__trigger" onClick={toggleDropdown}>
+            <button
+              className="custom-select__trigger"
+              onClick={toggleDropdown}
+              aria-haspopup="listbox"
+              aria-expanded={dropdownOpen}
+              type="button"
+            >
               {selectedEp ? `Серия ${selectedEp}` : 'Выбрать серию'}
               <span className={`arrow ${dropdownOpen ? 'open' : ''}`} />
             </button>
+
             {dropdownOpen && (
-              <div className="custom-select__options">
-                {episodeKeys.map(ep => (
+              <div className="custom-select__options" role="listbox" tabIndex={-1}>
+                {episodeKeys.map((ep) => (
                   <div
                     key={ep}
+                    role="option"
+                    aria-selected={selectedEp === ep}
                     className={`custom-select__option ${selectedEp === ep ? 'selected' : ''}`}
-                    onClick={() => handleSelect(ep)}
+                    onClick={() => handleSelectEpisode(ep)}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        handleSelectEpisode(ep);
+                      }
+                    }}
                   >
                     Серия {ep}
                   </div>
@@ -106,22 +304,8 @@ export default function AnimeInfo() {
           </div>
         )}
 
-        {hasEpisodes && selectedEp && (
-          <div className="episode-player">
-            {(() => {
-              const epData = episodes[selectedEp];
-              const videoUrl = epData.hls?.fhd || epData.hls?.hd || epData.hls?.sd;
-              const fullUrl = videoUrl ? `https://${player.host}${videoUrl}` : null;
-
-              return fullUrl ? (
-                <AnimePlayer url={fullUrl} />
-              ) : (
-                <p>Видео недоступно для этой серии</p>
-              );
-            })()}
-          </div>
-        )}
+        {hasEpisodes && selectedEp && <div className="episode-player">{renderPlayer()}</div>}
       </div>
     </div>
   );
-}
+};

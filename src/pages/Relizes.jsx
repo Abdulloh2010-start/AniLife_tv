@@ -5,58 +5,52 @@ import '../styles/relizes.scss';
 
 export default function Relizes() {
   const [animeList, setAnimeList] = useState([]);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(''); 
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const saved = sessionStorage.getItem('relizes');
-    if (saved) {
-      setAnimeList(JSON.parse(saved));
-      setLoading(false);
-    } else {
-      axios.get('https://api.anilibria.tv/v3/title/updates')
-        .then(res => {
-          const data = res.data.list || [];
-          setAnimeList(data);
-          sessionStorage.setItem('relizes', JSON.stringify(data));
-        })
-        .catch(err => console.error('Ошибка загрузки аниме:', err))
-        .finally(() => setLoading(false));
-    }
-  }, []);
+  const STORAGE_KEY = 'relizes_v1';
+  const DEFAULT_QUERY = 'my';
 
-  const handleSearch = async (e) => {
-    const value = e.target.value;
-    setSearch(value);
-
-    if (!value.trim()) {
-      setLoading(true);
-      try {
-        const res = await axios.get('https://api.anilibria.tv/v3/title/updates');
-        const data = res.data.list || [];
-        setAnimeList(data);
-        sessionStorage.setItem('relizes', JSON.stringify(data)); // обновим кэш
-      } catch (err) {
-        console.error('Ошибка загрузки обновлений:', err);
-        setAnimeList([]);
-      } finally {
-        setLoading(false);
-      }
-      return;
-    }
-
+  const fetchReleases = async (query) => {
     setLoading(true);
+
+    const effectiveQuery = query.trim() === '' ? `"${DEFAULT_QUERY}"` : `"${query}"`;
+
     try {
-      const res = await axios.get('https://api.anilibria.tv/v3/title/search', {
-        params: { search: value }
-      });
-      setAnimeList(res.data.list || []);
+      const res = await axios.get(
+        'https://anilibria.top/api/v1/app/search/releases',
+        { params: { query: effectiveQuery } }
+      );
+
+      const data = Array.isArray(res.data) ? res.data : [];
+      setAnimeList(data);
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (err) {
-      console.error('Ошибка поиска:', err);
+      console.error('Ошибка загрузки релизов (v1):', err);
       setAnimeList([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        setAnimeList(JSON.parse(saved));
+        setLoading(false);
+        return;
+      } catch {
+        sessionStorage.removeItem(STORAGE_KEY);
+      }
+    }
+    fetchReleases('');
+  }, []);
+
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearch(value); 
+    fetchReleases(value);
   };
 
   return (
@@ -64,14 +58,14 @@ export default function Relizes() {
       <div className="filters">
         <input
           type="text"
-          placeholder="Поиск аниме..."
+          placeholder="Поиск релизов..."
           value={search}
           onChange={handleSearch}
         />
       </div>
 
       {loading ? (
-        <p>Загрузка аниме...</p>
+        <p>Загрузка релизов...</p>
       ) : animeList.length > 0 ? (
         <div className="anime-grid">
           {animeList.map(anime => (
@@ -83,4 +77,4 @@ export default function Relizes() {
       )}
     </div>
   );
-};
+}

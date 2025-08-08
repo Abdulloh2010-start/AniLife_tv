@@ -13,57 +13,140 @@ const daysOfWeek = [
   'Воскресенье',
 ];
 
+const groupItemsToBuckets = (items = []) => {
+  const buckets = Array.from({ length: 7 }, (_, i) => ({ day: i, list: [] }));
+
+  const getDayIndex = (item, release) => {
+    const pub = release?.publish_day?.value ?? release?.publish_day ?? null;
+    if (typeof pub === 'number' && !Number.isNaN(pub)) {
+      if (pub >= 1 && pub <= 7) return pub - 1;
+      if (pub >= 0 && pub <= 6) return pub;
+    }
+    if (typeof item?.day === 'number') {
+      return ((item.day % 7) + 7) % 7;
+    }
+    return 0;
+  };
+
+  items.forEach(item => {
+    if (Array.isArray(item.list) && item.list.length > 0) {
+      item.list.forEach(entry => {
+        const rel = entry.release ? entry.release : entry;
+        const idx = getDayIndex(item, rel);
+        buckets[idx].list.push(entry);
+      });
+      return;
+    }
+
+    if (item.release) {
+      const rel = item.release;
+      const idx = getDayIndex(item, rel);
+      buckets[idx].list.push(item);
+      return;
+    }
+
+    if (item.id || item.alias) {
+      const rel = item;
+      const idx = getDayIndex(item, rel);
+      buckets[idx].list.push({ release: rel });
+      return;
+    }
+
+    console.warn('[Home] Unknown item format in grouping, skipping:', item);
+  });
+
+  return buckets;
+};
+
 export default function Home() {
-  const [schedule, setSchedule] = useState([]);
+  const [schedule, setSchedule] = useState([]); 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const saved = sessionStorage.getItem('schedule');
-    if (saved) {
+    const STORAGE_KEY = 'schedule_v1';
+
+    const tryLoadFromCache = () => {
+      const saved = sessionStorage.getItem(STORAGE_KEY);
+      if (!saved) return false;
+
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
+
+        const looksLikeBuckets =
+          Array.isArray(parsed) &&
+          parsed.length === 7 &&
+          parsed.every(d => d && Array.isArray(d.list) && typeof d.day === 'number');
+
+        if (looksLikeBuckets) {
           setSchedule(parsed);
+          return true;
         }
-      } catch (e) {
-        console.error('Ошибка парсинга сохранённых данных', e);
+
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const grouped = groupItemsToBuckets(parsed);
+          console.log('[Home] Grouped cached raw items into buckets:', grouped.map(b => ({ day: b.day, count: b.list.length })));
+          sessionStorage.setItem(STORAGE_KEY, JSON.stringify(grouped));
+          setSchedule(grouped);
+          return true;
+        }
+
+        return false;
+      } catch (err) {
+        console.warn('[Home] Failed parse cache, clearing.', err);
+        sessionStorage.removeItem(STORAGE_KEY);
+        return false;
       }
+    };
+
+    if (tryLoadFromCache()) {
       setLoading(false);
-    } else {
-      axios
-        .get('/api/schedule')
-        .then(res => {
-          console.log('API schedule response:', res.data);
-          if (Array.isArray(res.data)) {
-            setSchedule(res.data);
-            sessionStorage.setItem('schedule', JSON.stringify(res.data));
-          } else {
-            console.error('Неверный формат данных от API', res.data);
-            setSchedule([]); 
-          }
-        })
-        .catch(err => {
-          console.error('Ошибка загрузки расписания:', err);
-          setSchedule([]);
-        })
-        .finally(() => setLoading(false));
+      return;
     }
+
+    axios
+      .get('https://anilibria.top/api/v1/anime/schedule/week')
+      .then(res => {
+        if (Array.isArray(res.data)) {
+          const grouped = groupItemsToBuckets(res.data);
+          setSchedule(grouped);
+          sessionStorage.setItem(STORAGE_KEY, JSON.stringify(grouped));
+          return;
+        }
+
+        if (res.data && Array.isArray(res.data.list)) {
+          const grouped = groupItemsToBuckets(res.data.list);
+          setSchedule(grouped);
+          sessionStorage.setItem(STORAGE_KEY, JSON.stringify(grouped));
+          return;
+        }
+
+        console.error('[Home] Неверный формат ответа API:', res.data);
+        setSchedule([]);
+      })
+      .catch(err => {
+        console.error('[Home] Ошибка загрузки расписания:', err);
+        setSchedule([]);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   if (loading) {
     return (
       <div className="home">
         <h1>Расписание Аниме</h1>
-        <p>Загрузка...</p>
+        <p className="loading">Загрузка...</p>
       </div>
     );
   }
 
-  if (!Array.isArray(schedule) || schedule.length === 0) {
+  const daysWithItems = (Array.isArray(schedule) ? schedule : []).filter(d => Array.isArray(d.list) && d.list.length > 0);
+
+  if (daysWithItems.length === 0) {
+    console.log('[Home] No releases found after normalization. schedule:', schedule);
     return (
       <div className="home">
         <h1>Расписание Аниме</h1>
-        <p>Данные отсутствуют</p>
+        <p>Пока нет доступных релизов.</p>
       </div>
     );
   }
@@ -71,17 +154,22 @@ export default function Home() {
   return (
     <div className="home">
       <h1>Расписание Аниме</h1>
-      {schedule.map(({ day, list }, idx) => (
-        <section key={idx} className="day-section">
-          <h2>{daysOfWeek[day] ?? `День ${day}`}</h2>
-          <div className="anime-grid">
-            {Array.isArray(list) &&
-              list.map(item => (
-                <AnimeCard key={item.id} anime={item} />
-              ))}
-          </div>
-        </section>
-      ))}
+
+      {daysWithItems.map(dayItem => {
+        const dayIndex = typeof dayItem.day === 'number' ? dayItem.day : 0;
+        return (
+          <section key={dayIndex} className="day-section">
+            <h2>{daysOfWeek[dayIndex] ?? `День ${dayIndex}`}</h2>
+            <div className="anime-grid">
+              {dayItem.list.map((item, idx) => {
+                const release = item.release ? item.release : item;
+                const key = release?.id || release?.alias || `${dayIndex}-${idx}`;
+                return <AnimeCard key={key} anime={release} />;
+              })}
+            </div>
+          </section>
+        );
+      })}
     </div>
   );
-}
+};

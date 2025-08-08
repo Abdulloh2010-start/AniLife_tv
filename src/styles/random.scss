@@ -62,10 +62,8 @@ $light-selected-text: black;
     }
 
     .text {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      margin-bottom: 10px;
+      line-height: 25px;
 
       .genre {
         display: inline-block;
@@ -167,11 +165,7 @@ $light-selected-text: black;
     margin-bottom: 20px;
 
     video {
-      width: 80%;
-      max-width: 600px;
-      max-height: 600px;
-      border-radius: 10px;
-      border: 2px solid $dark-link-color; 
+      width: 98%;
       transition: border-color 0.3s ease;
     }
   }
@@ -188,6 +182,7 @@ $light-selected-text: black;
     
     .info-block {
       .text {
+        margin-bottom: 0.5rem;
         .genre {
           background-color: $light-genre-bg;
           color: $light-genre-text;
@@ -260,9 +255,8 @@ $light-selected-text: black;
       }
 
       .text {
-        align-items: center;
-        text-align: center;
-
+        font-size: 10px;
+        margin-bottom: 0.5rem;
         .genre {
           margin-bottom: 0.5rem;
         }
