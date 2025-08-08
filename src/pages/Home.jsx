@@ -20,16 +20,32 @@ export default function Home() {
   useEffect(() => {
     const saved = sessionStorage.getItem('schedule');
     if (saved) {
-      setSchedule(JSON.parse(saved));
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setSchedule(parsed);
+        }
+      } catch (e) {
+        console.error('Ошибка парсинга сохранённых данных', e);
+      }
       setLoading(false);
     } else {
       axios
-        .get('https://api.anilibria.tv/v3/title/schedule')
+        .get('/api/schedule')
         .then(res => {
-          setSchedule(res.data || []);
-          sessionStorage.setItem('schedule', JSON.stringify(res.data));
+          console.log('API schedule response:', res.data);
+          if (Array.isArray(res.data)) {
+            setSchedule(res.data);
+            sessionStorage.setItem('schedule', JSON.stringify(res.data));
+          } else {
+            console.error('Неверный формат данных от API', res.data);
+            setSchedule([]); 
+          }
         })
-        .catch(err => console.error(err))
+        .catch(err => {
+          console.error('Ошибка загрузки расписания:', err);
+          setSchedule([]);
+        })
         .finally(() => setLoading(false));
     }
   }, []);
@@ -43,19 +59,29 @@ export default function Home() {
     );
   }
 
+  if (!Array.isArray(schedule) || schedule.length === 0) {
+    return (
+      <div className="home">
+        <h1>Расписание Аниме</h1>
+        <p>Данные отсутствуют</p>
+      </div>
+    );
+  }
+
   return (
     <div className="home">
       <h1>Расписание Аниме</h1>
-      {schedule.map(({ day, list }) => (
-        <section key={day} className="day-section">
-          <h2>{daysOfWeek[day]}</h2>
-            <div className="anime-grid">
-              {list.map(item => (
+      {schedule.map(({ day, list }, idx) => (
+        <section key={idx} className="day-section">
+          <h2>{daysOfWeek[day] ?? `День ${day}`}</h2>
+          <div className="anime-grid">
+            {Array.isArray(list) &&
+              list.map(item => (
                 <AnimeCard key={item.id} anime={item} />
               ))}
-            </div>
+          </div>
         </section>
       ))}
     </div>
   );
-};
+}
