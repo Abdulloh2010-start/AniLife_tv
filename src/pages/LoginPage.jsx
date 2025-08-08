@@ -119,7 +119,7 @@ export default function LoginPage(){
             <a className="icon github" onClick={handleGithubSignIn} role="button" tabIndex={0}><i className="fa-brands fa-github"></i></a>
             <a className="icon linkedin" onClick={e => e.preventDefault()}><i className="fa-brands fa-linkedin-in"></i></a>
           </div>
-          <span className="black">или email</span>
+          <span className="black none">или email</span>
           <div className="input-group">
             <input type="text" id="name" placeholder={generalErrorSignUp && <p className="error general-error">{generalErrorSignUp}</p>} value={nameSignUp} onChange={e => setNameSignUp(e.target.value)} required />
             <label htmlFor="name">Имя</label>
@@ -144,7 +144,7 @@ export default function LoginPage(){
             <a className="icon github" onClick={handleGithubSignIn} role="button" tabIndex={0}><i className="fa-brands fa-github"></i></a>
             <a className="icon linkedin" onClick={e => e.preventDefault()}><i className="fa-brands fa-linkedin-in"></i></a>
           </div>
-          <span className="black">или email и пароль</span>
+          <span className="black none">или email и пароль</span>
           <div className="input-group">
             <input type="email" id="email-signin" placeholder={errorEmailSignIn} value={emailSignIn} onChange={e => { setEmailSignIn(e.target.value); if(errorEmailSignIn) setErrorEmailSignIn(""); if(generalErrorSignIn) setGeneralErrorSignIn(""); }} className={errorEmailSignIn ? "input-error" : ""} required />
             <label htmlFor="email-signin">Email</label>
