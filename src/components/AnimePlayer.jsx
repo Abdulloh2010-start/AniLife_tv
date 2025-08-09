@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import Hls from 'hls.js';
+import "../styles/animeplayer.scss"
 
 export default function AnimePlayer({ url }) {
   const videoRef = useRef();
@@ -20,5 +21,5 @@ export default function AnimePlayer({ url }) {
     }
   }, [url]);
 
-  return <video ref={videoRef} controls width="98%" />;
+  return <video className='video' ref={videoRef} controls width="98%" />;
 }

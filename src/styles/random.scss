@@ -171,6 +171,10 @@ $light-selected-text: black;
   }
 }
 
+#video-player{
+  max-height: 450px;
+}
+
 [data-theme="light"] {
   .random-anime {
     color: $light-text-color;
