@@ -101,7 +101,7 @@ export default function Random() {
           <div className="info-block">
             <img src={getPosterUrl(anime.poster)} alt={anime.name?.main} />
             <div>
-              <p className='text'><strong>Описание:</strong> {anime.description || none}</p>
+              <p className='text'><strong>Описание:</strong> {anime.description || 'нет описания'}</p>
               <p className='text'><strong>Жанры:</strong>{' '}{anime.genres?.map((g) => (<span key={g.id} className="genre">{g.name}</span>))}</p>
               <p className='text'><strong>Сезон:</strong> {anime.season?.description} {anime.year}</p>
               <p className='text'><strong>Возраст:</strong> {anime.age_rating?.label}</p>
