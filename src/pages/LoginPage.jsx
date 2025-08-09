@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { auth, googleProvider, githubProvider } from "../firebase.config";
-import { signInWithEmailAndPassword, signInWithPopup, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { auth, googleProvider, githubProvider, facebookProvider, yahooProvider } from "../firebase.config";
+import { signInWithEmailAndPassword, signInWithPopup, createUserWithEmailAndPassword, sendEmailVerification, signInWithRedirect, getRedirectResult } from "firebase/auth";
 import { useUser } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 import "../styles/login.scss";
@@ -70,6 +70,28 @@ export default function LoginPage(){
     }
   };
 
+  const handleYahooSignIn = async () => {
+    setGeneralErrorSignIn("");
+    try {
+      const result = await signInWithPopup(auth, yahooProvider);
+      setUser(result.user);
+      navigate("/", { replace: true });
+    } catch (err) {
+      setGeneralErrorSignIn(getShortErrorMessage(err.code));
+    }
+  };
+
+  const handleFacebookSignIn = async () => {
+    setGeneralErrorSignIn("");
+    try {
+      const result = await signInWithPopup(auth, facebookProvider);
+      setUser(result.user);
+      navigate("/", { replace: true });
+    } catch (err) {
+      setGeneralErrorSignIn(getShortErrorMessage(err.code));
+    }
+  };
+
   const handleGithubSignIn = async () => {
     setGeneralErrorSignIn("");
     try {
@@ -110,9 +132,9 @@ export default function LoginPage(){
           {message && <p className="message">{message}</p>}
           <div className="social-icons">
             <a className="icon google" onClick={handleGoogleSignIn} role="button" tabIndex={0}><i className="fa-brands fa-google"></i></a>
-            <a className="icon facebook" onClick={e => e.preventDefault()}><i className="fa-brands fa-facebook-f"></i></a>
+            <a className="icon facebook" onClick={handleFacebookSignIn} role="button" tabIndex={0}><i className="fa-brands fa-facebook-f"></i></a>
             <a className="icon github" onClick={handleGithubSignIn} role="button" tabIndex={0}><i className="fa-brands fa-github"></i></a>
-            <a className="icon linkedin" onClick={e => e.preventDefault()}><i className="fa-brands fa-linkedin-in"></i></a>
+            <a className="icon yahoo" onClick={handleYahooSignIn} role="button" tabIndex={0}><i className="fa-brands fa-yahoo"></i></a>
           </div>
           <span className="black none">или email</span>
           <div className="input-group">
@@ -131,9 +153,9 @@ export default function LoginPage(){
           <h1 className="black">Вход</h1>
           <div className="social-icons">
             <a className="icon google" onClick={handleGoogleSignIn} role="button" tabIndex={0}><i className="fa-brands fa-google"></i></a>
-            <a className="icon facebook" onClick={e => e.preventDefault()}><i className="fa-brands fa-facebook-f"></i></a>
+            <a className="icon facebook" onClick={handleFacebookSignIn} role="button" tabIndex={0}><i className="fa-brands fa-facebook-f"></i></a>
             <a className="icon github" onClick={handleGithubSignIn} role="button" tabIndex={0}><i className="fa-brands fa-github"></i></a>
-            <a className="icon linkedin" onClick={e => e.preventDefault()}><i className="fa-brands fa-linkedin-in"></i></a>
+            <a className="icon yahoo" onClick={handleYahooSignIn} role="button" tabIndex={0}><i className="fa-brands fa-yahoo"></i></a>
           </div>
           <span className="black none">или email и пароль</span>
           <div className="input-group">
@@ -144,7 +166,7 @@ export default function LoginPage(){
             <input type="password" id="password-signin" placeholder={errorPasswordSignIn} value={passwordSignIn} onChange={e => { setPasswordSignIn(e.target.value); if(errorPasswordSignIn) setErrorPasswordSignIn(""); if(generalErrorSignIn) setGeneralErrorSignIn("");}} className={errorPasswordSignIn ? "input-error" : ""} required/>
             <label htmlFor="password-signin">Пароль</label>
           </div>
-          <a style={{ marginBottom: 10 }}>Забыли пароль?</a>
+          <a className="password-i">Забыли пароль?</a>
           <button type="submit">Войти</button>
         </form>
       </div>
