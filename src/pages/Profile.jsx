@@ -1,6 +1,7 @@
 import { useUser } from '../contexts/UserContext';
 import { useEffect, useState } from 'react';
 import '../styles/profile.scss';
+import { Helmet } from '@dr.pogodin/react-helmet';
 
 export default function Profile() {
   const { user, logout } = useUser();
@@ -54,45 +55,40 @@ export default function Profile() {
   if (!user) return <p>Вы не вошли в систему</p>;
 
   return (
-    <main className="profile">
-      <section className="profile-header">
-        <img
-          src={user.photoURL || "/default-avatar.png"}
-          alt="Фото профиля"
-          className="avatar"
-          loading="lazy"
-        />
-        <div>
-          <h2>{user.displayName}</h2>
-          <p className="email">{user.email}</p>
-        </div>
-      </section>
+    <>
+      <Helmet>
+        <title>Профиль — AniLifeTV</title>
+        <meta name="description" content="Просмотрите информацию о своём аккаунте AniLifeTV, дате регистрации, последнем входе и местоположении." />
+        <meta property="og:title" content="Профиль — AniLifeTV" />
+        <meta property="og:description" content="Детали вашего аккаунта AniLifeTV: имя, почта, дата регистрации, последний вход и местоположение." />
+        <meta property="og:type" content="profile" />
+      </Helmet>
 
-      <section className="profile-details">
-        <div className="login-data">
-          <strong>Дата регистрации:</strong>{" "}
-          {new Date(user.metadata.creationTime).toLocaleDateString()}
-        </div>
-        <div className="login-data">
-          <strong>Последний вход:</strong>{" "}
-          {new Date(user.metadata.lastSignInTime).toLocaleDateString()}
-        </div>
+      <main className="profile">
+        <section className="profile-header">
+          <img src={user.photoURL || "/default-avatar.png"} alt="Фото профиля" className="avatar" loading="lazy" />
+          <div>
+            <h2>{user.displayName}</h2>
+            <p className="email">{user.email}</p>
+          </div>
+        </section>
 
-        {!locLoading ? (
-          <>
-            <div className="detail-item">
-              <strong>Город:</strong> {locationInfo.city || 'Загрузка...'}
-            </div>
-            <div className="detail-item">
-              <strong>Район:</strong> {locationInfo.region || 'Загрузка...'}
-            </div>
-          </>
-        ) : (
-          <div className="detail-item">Определяем местоположение…</div>
-        )}
-      </section>
+        <section className="profile-details">
+          <div className="login-data"><strong>Дата регистрации:</strong> {new Date(user.metadata.creationTime).toLocaleDateString()}</div>
+          <div className="login-data"><strong>Последний вход:</strong> {new Date(user.metadata.lastSignInTime).toLocaleDateString()}</div>
 
-      <button className="btn-logout" onClick={logout}>Выйти</button>
-    </main>
+          {!locLoading ? (
+            <>
+              <div className="detail-item"><strong>Город:</strong> {locationInfo.city || 'Загрузка...'}</div>
+              <div className="detail-item"><strong>Район:</strong> {locationInfo.region || 'Загрузка...'}</div>
+            </>
+          ) : (
+            <div className="detail-item">Определяем местоположение…</div>
+          )}
+        </section>
+
+        <button className="btn-logout" type="button" onClick={logout}>Выйти</button>
+      </main>
+    </>
   );
 };

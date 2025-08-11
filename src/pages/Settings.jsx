@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { ThemeContext } from "../components/ThemeContext";
+import { Helmet } from '@dr.pogodin/react-helmet';
 import "../styles/settings.scss";
 
 export default function Settings() {
@@ -7,6 +8,13 @@ export default function Settings() {
 
     return (
         <main className="settings-page">
+            <Helmet>
+                <title>Настройки — AniLifeTV</title>
+                <meta name="description" content="Персонализируйте свой опыт на AniLifeTV: настройка профиля, темы оформления, уведомлений и других параметров." />
+                <meta property="og:title" content="Настройки — AniLifeTV" />
+                <meta property="og:description" content="Изменяйте параметры профиля, тему и уведомления для комфортного использования AniLifeTV." />
+                <meta property="og:type" content="website" />
+            </Helmet>
             <h2>Настройки</h2>
             <section className="settings-group">
                 <label>Тема интерфейса:</label>

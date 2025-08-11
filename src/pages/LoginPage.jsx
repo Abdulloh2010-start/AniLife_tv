@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/login.scss";
+import { Helmet } from '@dr.pogodin/react-helmet';
 
 function getShortErrorMessage(code) {
   switch(code){
@@ -139,6 +140,12 @@ export default function LoginPage(){
 
   return (
     <>
+      <Helmet>
+        <title>Вход или регистрация AniLifeTv</title>
+        <meta name="description" content="Войдите или зарегистрируйтесь, чтобы получить доступ ко всем функциям сайта."/>
+        <meta property="og:title" content="Вход или регистрация"/>
+        <meta property="og:description" content="Войдите или зарегистрируйтесь, чтобы получить доступ ко всем функциям сайта."/>
+      </Helmet>
       <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
       <main className={`container${isRegistering ? " active" : ""}`} id="container">
         <section className="form-container sign-up">

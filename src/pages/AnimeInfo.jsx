@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import AnimePlayer from '../components/AnimePlayer';
 import '../styles/animeinfo.scss';
+import { Helmet } from '@dr.pogodin/react-helmet';
 
 const STATIC_BASE = 'https://static-libria.weekstorm.one';
 
@@ -222,8 +223,26 @@ export default function AnimeInfo() {
     return <AnimePlayer url={videoUrl} />;
   };
 
+  const pageUrl = `https://anilifetv.vercel.app/anime/${encodeURIComponent(id)}`;
+
   return (
     <main className="anime-info">
+      <Helmet>
+        <title>{title ? `${title} — AniLifeTV` : 'AniLifeTV'}</title>
+        <meta name="description" content={description || 'Смотреть аниме на AniLifeTV'} />
+        <link rel="canonical" href={pageUrl} />
+        <meta property="og:type" content="video.other" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description || `Смотреть ${title} онлайн`} />
+        <meta property="og:url" content={pageUrl} />
+        {poster && <meta property="og:image" content={poster} />}
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        {poster && <meta name="twitter:image" content={poster} />}
+      </Helmet>
       <h1>{title}</h1>
 
       <section className="info-block">

@@ -1,9 +1,18 @@
 import "../styles/terms.scss";
 import { Link } from "react-router-dom";
+import { Helmet } from '@dr.pogodin/react-helmet';
+
 
 export default function Terms() {
     return (
         <main className="terms">
+            <Helmet>
+                <title>Условия использования — AniLifeTV</title>
+                <meta name="description" content="Правила и условия использования AniLifeTV: регистрация, платный контент, безопасность, ответственность и права пользователей." />
+                <meta property="og:title" content="Условия использования — AniLifeTV" />
+                <meta property="og:description" content="Ознакомьтесь с правилами AniLifeTV: регистрация, платный контент, запреты, ответственность и авторские права." />
+                <meta property="og:type" content="website" />
+            </Helmet>
             <h1>Условия использования AniLife_tv</h1>
             <p><strong>Дата вступления в силу:</strong> [с момента создание сайта]</p>
             <h2>1. Принятие условий</h2>

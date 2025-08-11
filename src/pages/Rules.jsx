@@ -1,9 +1,18 @@
+import { Helmet } from '@dr.pogodin/react-helmet';
 import { Link } from "react-router-dom";
 import "../styles/rules.scss";
 
 export default function Rules() {
   return (
     <main className="rules">
+      <Helmet>
+        <title>Правила сайта — AniLifeTV</title>
+        <meta name="description" content="Ознакомьтесь с правилами использования AniLifeTV. Здесь описаны условия предоставления контента, конфиденциальность, регистрация и другие важные аспекты работы сервиса." />
+        <meta property="og:title" content="Правила сайта — AniLifeTV" />
+        <meta property="og:description" content="Ознакомьтесь с правилами использования AniLifeTV. Здесь описаны условия предоставления контента, конфиденциальность, регистрация и другие важные аспекты работы сервиса." />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
       <h1>Правила сайта AniLife_tv</h1>
       <p>AniLife_tv — это платформа для любителей аниме, где можно не только смотреть свои любимые сериалы, но и получать дополнительный контент и эксклюзивные материалы. Мы стремимся предоставить вам наилучший опыт просмотра аниме с удобным интерфейсом и широкими возможностями для персонализации.</p>
       <h2>1. Бесплатный контент</h2>
@@ -19,10 +28,10 @@ export default function Rules() {
       <h2>6. Специальные предложения и акции</h2>
       <p>Мы проводим акции на подписки. Следите за новостями на сайте или подпишитесь на рассылку.</p>
       <h2>7. Часто задаваемые вопросы</h2>
-      <p><strong>Как зарегистрироваться?</strong>Перейдите на страницу "Регистрация", заполните форму, подтвердите email.</p>
-      <p><strong>Как изменить язык интерфейса?</strong>В "Настройках" выберите язык из списка.</p>
+      <p><strong>Как зарегистрироваться?</strong> Перейдите на страницу "Регистрация", заполните форму, подтвердите email.</p>
+      <p><strong>Как изменить язык интерфейса?</strong> В "Настройках" выберите язык из списка.</p>
       <h2>8. Социальные сети</h2>
-      <p>Следите за новостями на наших платформах:<a href="https://www.instagram.com/anicity_tv?igsh=Ynczbm8yZDZndmQ3" target="_blank" rel="noreferrer">Instagram</a>,{" "}<a href="https://www.youtube.com/@AniCity_tv" target="_blank" rel="noreferrer">YouTube</a>,{" "}<a href="https://t.me/AniCity_tv_org" target="_blank" rel="noreferrer">Telegram</a>.</p>
+      <p>Следите за новостями на наших платформах: <a href="https://www.instagram.com/anicity_tv?igsh=Ynczbm8yZDZndmQ3" target="_blank" rel="noreferrer">Instagram</a>,{" "}<a href="https://www.youtube.com/@AniCity_tv" target="_blank" rel="noreferrer">YouTube</a>,{" "}<a href="https://t.me/AniCity_tv_org" target="_blank" rel="noreferrer">Telegram</a>.</p>
       <h2>9. Обратная связь</h2>
       <p>Обратитесь в поддержку — мы поможем решить любую проблему.</p>
       <h2>10. Доступность контента</h2>
@@ -34,5 +43,5 @@ export default function Rules() {
       <h2>13. Контент от пользователей</h2>
       <p>Хотите предложить материалы? Свяжитесь с нами на странице "Контакты".</p>
     </main>
-  )
+  );
 };

@@ -1,3 +1,4 @@
+import { Helmet } from '@dr.pogodin/react-helmet';
 import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import Hls from 'hls.js';
@@ -90,6 +91,14 @@ export default function Random() {
 
   return (
     <main className="random-anime">
+      <Helmet>
+        <title>Случайное аниме — AniLifeTV</title>
+        <meta name="description" content="Смотрите случайное аниме в один клик на AniLifeTV. Новые релизы, случайный выбор и HD-качество." />
+        <meta property="og:title" content="Случайное аниме — AniLifeTV" />
+        <meta property="og:description" content="Нажмите и получите случайный аниме-релиз. Полное описание, жанры, возрастной рейтинг и возможность сразу смотреть онлайн." />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
       <button className="random-anime__btn" onClick={fetchRandom} disabled={loading}>
         {loading ? 'Загрузка...' : 'Случайное аниме'}
       </button>
@@ -131,4 +140,4 @@ export default function Random() {
       )}
     </main>
   );
-}
+};

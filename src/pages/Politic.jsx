@@ -1,8 +1,16 @@
 import "../styles/politic.scss";
+import { Helmet } from '@dr.pogodin/react-helmet';
 
 export default function Politic() {
     return (
         <main className="politic">
+            <Helmet>
+                <title>Политика конфиденциальности — AniLife_tv</title>
+                <meta name="description" content="Политика конфиденциальности AniLife_tv — как мы собираем, используем и защищаем ваши персональные данные." />
+                <meta property="og:title" content="Политика конфиденциальности — AniLifeTV" />
+                <meta property="og:description" content="Как AniLifeTV обрабатывает ваши данные, какие меры безопасности мы принимаем и как вы можете управлять своей информацией." />
+                <meta property="og:type" content="website" />
+            </Helmet>
             <h1>Политика конфиденциальности AniLife_tv</h1>
             <p><strong>Дата вступления в силу:</strong> [с момента создание сайта]</p>
             <h2>1. Введение</h2>
