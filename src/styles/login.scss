@@ -272,15 +272,15 @@
   .container button,
   .container input,
   .input-group label,
-  .social-icons a {
+  .social-icons .a {
     font-size: 80% !important;
   }
 
-  .container button {
+  .container .button {
     padding: 12px 36px !important;
   }
 
-  .social-icons a {
+  .social-icons .a {
     width: 32px !important;
     height: 32px !important;
   }
@@ -317,7 +317,7 @@
   .container button,
   .container input,
   .input-group label,
-  .social-icons a {
+  .social-icons .a {
     font-size: 70% !important;
   }
 
@@ -338,12 +338,12 @@
     display: none;
   }
 
-  .container button {
+  .container .button {
     padding: 12px 36px !important;
     margin-bottom: 50px;
   }
 
-  .social-icons a {
+  .social-icons .a {
     width: 32px !important;
     height: 32px !important;
   }
