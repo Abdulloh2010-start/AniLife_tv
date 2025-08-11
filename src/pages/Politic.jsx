@@ -10,6 +10,7 @@ export default function Politic() {
                 <meta property="og:title" content="Политика конфиденциальности — AniLifeTV" />
                 <meta property="og:description" content="Как AniLifeTV обрабатывает ваши данные, какие меры безопасности мы принимаем и как вы можете управлять своей информацией." />
                 <meta property="og:type" content="website" />
+                <link rel="canonical" href="https://anilifetv.vercel.app/politic" />
             </Helmet>
             <h1>Политика конфиденциальности AniLife_tv</h1>
             <p><strong>Дата вступления в силу:</strong> [с момента создание сайта]</p>

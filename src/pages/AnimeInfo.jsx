@@ -242,6 +242,7 @@ export default function AnimeInfo() {
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
         {poster && <meta name="twitter:image" content={poster} />}
+        <link rel="canonical" href={`https://anilifetv.vercel.app/anime/${id}`} />
       </Helmet>
       <h1>{title}</h1>
 

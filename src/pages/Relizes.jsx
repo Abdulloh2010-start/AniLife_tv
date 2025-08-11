@@ -69,6 +69,7 @@ export default function Relizes() {
         <meta property="og:title" content="Каталог релизов — AniLifeTV" />
         <meta property="og:description" content="Просматривайте каталог аниме-релизов на AniLifeTV. Быстрый поиск, удобная навигация и актуальная информация." />
         <meta property="og:type" content="website" />
+        <link rel="canonical" href="https://anilifetv.vercel.app/relizes" />
       </Helmet>
 
       <section className="filters">

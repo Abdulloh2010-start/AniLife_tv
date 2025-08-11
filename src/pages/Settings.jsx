@@ -14,6 +14,7 @@ export default function Settings() {
                 <meta property="og:title" content="Настройки — AniLifeTV" />
                 <meta property="og:description" content="Изменяйте параметры профиля, тему и уведомления для комфортного использования AniLifeTV." />
                 <meta property="og:type" content="website" />
+                <link rel="canonical" href="https://anilifetv.vercel.app/settings" />
             </Helmet>
             <h2>Настройки</h2>
             <section className="settings-group">

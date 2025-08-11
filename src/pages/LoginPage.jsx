@@ -145,6 +145,7 @@ export default function LoginPage(){
         <meta name="description" content="Войдите или зарегистрируйтесь, чтобы получить доступ ко всем функциям сайта."/>
         <meta property="og:title" content="Вход или регистрация"/>
         <meta property="og:description" content="Войдите или зарегистрируйтесь, чтобы получить доступ ко всем функциям сайта."/>
+        <link rel="canonical" href="https://anilifetv.vercel.app/login" />
       </Helmet>
       <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
       <main className={`container${isRegistering ? " active" : ""}`} id="container">

@@ -62,6 +62,7 @@ export default function Profile() {
         <meta property="og:title" content="Профиль — AniLifeTV" />
         <meta property="og:description" content="Детали вашего аккаунта AniLifeTV: имя, почта, дата регистрации, последний вход и местоположение." />
         <meta property="og:type" content="profile" />
+        <link rel="canonical" href="https://anilifetv.vercel.app/profile" />
       </Helmet>
 
       <main className="profile">

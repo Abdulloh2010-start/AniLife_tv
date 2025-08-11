@@ -97,6 +97,7 @@ export default function Random() {
         <meta property="og:title" content="Случайное аниме — AniLifeTV" />
         <meta property="og:description" content="Нажмите и получите случайный аниме-релиз. Полное описание, жанры, возрастной рейтинг и возможность сразу смотреть онлайн." />
         <meta property="og:type" content="website" />
+        <link rel="canonical" href="https://anilifetv.vercel.app/random" />
       </Helmet>
 
       <button className="random-anime__btn" onClick={fetchRandom} disabled={loading}>

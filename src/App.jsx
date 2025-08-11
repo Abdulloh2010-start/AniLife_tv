@@ -20,7 +20,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
 
         <Route path="/" element={<ProtectedRoute><SideBar /></ProtectedRoute>}>
-          <Route index element={<Home />} />
+          <Route path='home' index element={<Home />} />
           <Route path="relizes" element={<Relizes />} />
           <Route path="random" element={<Random />} />
           <Route path="anime/:id" element={<AnimeInfo />} />

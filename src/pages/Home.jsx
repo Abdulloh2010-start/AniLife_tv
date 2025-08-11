@@ -161,6 +161,7 @@ export default function Home() {
         <meta property="og:description" content="Свежие релизы аниме по дням недели. Удобное расписание для настоящих анимешников." />
         <meta property="og:image" content="https://i.ibb.co/MDPcbc59/photo-2025-01-23-20-38-42.jpg" />
         <meta property="og:type" content="website" />
+        <link rel="canonical" href="https://anilifetv.vercel.app/home" />
       </Helmet>
       <h1>Расписание Аниме</h1>
 

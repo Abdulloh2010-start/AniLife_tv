@@ -11,6 +11,7 @@ export default function Help() {
                 <meta property="og:title" content="Помощь и поддержка — AniLifeTV" />
                 <meta property="og:description" content="Подробная инструкция по безопасности аккаунта, возврату доступа и правилам использования сайта AniLifeTV." />
                 <meta property="og:type" content="website" />
+                <link rel="canonical" href="https://anilifetv.vercel.app/help" />
             </Helmet>
             <h1>Помощь и поддержка</h1>
             <p>Добро пожаловать в наш сайт AniLife_tv с начала вам советуем ознакомиться с <Link to="/politic">Политикой конфидициальности</Link>, <Link to="/terms">Терминами</Link>, <Link to="/rules">Правилами</Link> и потом рассуждать с нами что случилсоь не правильно!</p>

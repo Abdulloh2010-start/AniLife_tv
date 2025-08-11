@@ -11,6 +11,7 @@ export default function Rules() {
         <meta property="og:title" content="Правила сайта — AniLifeTV" />
         <meta property="og:description" content="Ознакомьтесь с правилами использования AniLifeTV. Здесь описаны условия предоставления контента, конфиденциальность, регистрация и другие важные аспекты работы сервиса." />
         <meta property="og:type" content="website" />
+        <link rel="canonical" href="https://anilifetv.vercel.app/rules" />
       </Helmet>
 
       <h1>Правила сайта AniLife_tv</h1>

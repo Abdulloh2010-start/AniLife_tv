@@ -12,6 +12,7 @@ export default function Terms() {
                 <meta property="og:title" content="Условия использования — AniLifeTV" />
                 <meta property="og:description" content="Ознакомьтесь с правилами AniLifeTV: регистрация, платный контент, запреты, ответственность и авторские права." />
                 <meta property="og:type" content="website" />
+                <link rel="canonical" href="https://anilifetv.vercel.app/terms" />
             </Helmet>
             <h1>Условия использования AniLife_tv</h1>
             <p><strong>Дата вступления в силу:</strong> [с момента создание сайта]</p>
