@@ -146,10 +146,10 @@ export default function LoginPage(){
             <h1 className="black">Создать аккаунт</h1>
             {message && <p className="message">{message}</p>}
             <div className="social-icons">
-              <a className="icon google" onClick={() => handleOAuthSignIn(googleProvider, "Google")} role="button" tabIndex={0}><i className="fa-brands fa-google"></i></a>
-              <a className="icon facebook" onClick={() => handleOAuthSignIn(facebookProvider, "Facebook")} role="button" tabIndex={0}><i className="fa-brands fa-facebook-f"></i></a>
-              <a className="icon github" onClick={() => handleOAuthSignIn(githubProvider, "GitHub")} role="button" tabIndex={0}><i className="fa-brands fa-github"></i></a>
-              <a className="icon yahoo" onClick={() => handleOAuthSignIn(yahooProvider, "Yahoo")} role="button" tabIndex={0}><i className="fa-brands fa-yahoo"></i></a>
+              <button aria-label="Войти через Google" title="Войти через Google" type="button" className="a icon google" onClick={() => handleOAuthSignIn(googleProvider, "Google")}><i className="fa-brands fa-google"></i></button>
+              <button aria-label="Войти через FaceBook" title="Войти через FaceBook" type="button" className="a icon facebook" onClick={() => handleOAuthSignIn(facebookProvider, "Facebook")}><i className="fa-brands fa-facebook-f"></i></button>
+              <button aria-label="Войти через GitHub" title="Войти через GitHub" type="button" className="a icon github" onClick={() => handleOAuthSignIn(githubProvider, "GitHub")}><i className="fa-brands fa-github"></i></button>
+              <button aria-label="Войти через Yahoo" title="Войти через Yahoo" type="button" className="a icon yahoo" onClick={() => handleOAuthSignIn(yahooProvider, "Yahoo")}><i className="fa-brands fa-yahoo"></i></button>
             </div>
             <span className="black none">или email</span>
             <div className="input-group">
@@ -160,17 +160,17 @@ export default function LoginPage(){
               <input type="password" id="password-signup" placeholder={errorPasswordSignUp} value={passwordSignUp} onChange={e => { setPasswordSignUp(e.target.value); if(errorPasswordSignUp) setErrorPasswordSignUp(""); if(generalErrorSignUp) setGeneralErrorSignUp(""); }} className={errorPasswordSignUp ? "input-error" : ""} required/>
               <label htmlFor="password-signup">Пароль</label>
             </div>
-            <button type="submit">Зарегистрироваться</button>
+            <button type="submit" className="button">Зарегистрироваться</button>
           </form>
         </section>
         <section className="form-container sign-in">
           <form onSubmit={handleEmailSignIn}>
             <h1 className="black">Вход</h1>
             <div className="social-icons">
-              <a className="icon google" onClick={() => handleOAuthSignIn(googleProvider, "Google")} role="button" tabIndex={0}><i className="fa-brands fa-google"></i></a>
-              <a className="icon facebook" onClick={() => handleOAuthSignIn(facebookProvider, "Facebook")} role="button" tabIndex={0}><i className="fa-brands fa-facebook-f"></i></a>
-              <a className="icon github" onClick={() => handleOAuthSignIn(githubProvider, "GitHub")} role="button" tabIndex={0}><i className="fa-brands fa-github"></i></a>
-              <a className="icon yahoo" onClick={() => handleOAuthSignIn(yahooProvider, "Yahoo")} role="button" tabIndex={0}><i className="fa-brands fa-yahoo"></i></a>
+              <button aria-label="Войти через Google" title="Войти через Google" type="button" className="a icon google" onClick={() => handleOAuthSignIn(googleProvider, "Google")}><i className="fa-brands fa-google"></i></button>
+              <button aria-label="Войти через FaceBook" title="Войти через FaceBook" type="button" className="a icon facebook" onClick={() => handleOAuthSignIn(facebookProvider, "Facebook")}><i className="fa-brands fa-facebook-f"></i></button>
+              <button aria-label="Войти через GitHub" title="Войти через GitHub" type="button" className="a icon github" onClick={() => handleOAuthSignIn(githubProvider, "GitHub")}><i className="fa-brands fa-github"></i></button>
+              <button aria-label="Войти через Yahoo" title="Войти через Yahoo" type="button" className="a icon yahoo" onClick={() => handleOAuthSignIn(yahooProvider, "Yahoo")}><i className="fa-brands fa-yahoo"></i></button>
             </div>
             <span className="black none">или email и пароль</span>
             <div className="input-group">
@@ -181,8 +181,8 @@ export default function LoginPage(){
               <input type="password" id="password-signin" placeholder={errorPasswordSignIn} value={passwordSignIn} onChange={e => { setPasswordSignIn(e.target.value); if(errorPasswordSignIn) setErrorPasswordSignIn(""); if(generalErrorSignIn) setGeneralErrorSignIn("");}} className={errorPasswordSignIn ? "input-error" : ""} required/>
               <label htmlFor="password-signin">Пароль</label>
             </div>
-            <a className="password-i">Забыли пароль?</a>
-            <button type="submit">Войти</button>
+            <a href="https://firebase.com" target="_blank" className="password-i">Забыли пароль?</a>
+            <button type="submit" className="button">Войти</button>
           </form>
         </section>
         <section className="toggle-container">
@@ -190,12 +190,12 @@ export default function LoginPage(){
             <div className="toggle-panel toggle-left">
               <h1>С возвращением!</h1>
               <p>Введите данные для входа</p>
-              <button className="hidden" id="login" onClick={() => { setErrorEmailSignIn(""); setErrorPasswordSignIn(""); setGeneralErrorSignIn(""); setMessage(""); setIsRegistering(false); }}>Вход</button>
+              <button className="button hidden" id="login" onClick={() => { setErrorEmailSignIn(""); setErrorPasswordSignIn(""); setGeneralErrorSignIn(""); setMessage(""); setIsRegistering(false); }}>Вход</button>
             </div>
             <div className="toggle-panel toggle-right">
               <h1>Привет, друг!</h1>
               <p>Зарегистрируйтесь для доступа</p>
-              <button className="hidden" id="register" onClick={() => { setErrorEmailSignUp(""); setErrorPasswordSignUp(""); setGeneralErrorSignUp(""); setMessage(""); setIsRegistering(true); }}>Регистрация</button>
+              <button className="button hidden" id="register" onClick={() => { setErrorEmailSignUp(""); setErrorPasswordSignUp(""); setGeneralErrorSignUp(""); setMessage(""); setIsRegistering(true); }}>Регистрация</button>
             </div>
           </div>
         </section>
