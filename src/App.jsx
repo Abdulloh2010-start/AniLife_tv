@@ -5,8 +5,6 @@ import Home from './pages/Home';
 import Relizes from './pages/Relizes';
 import Random from './pages/Random';
 import AnimeInfo from './pages/AnimeInfo';
-import Payment from './pages/Payment';
-import Paywall from './pages/Paywall';
 import Rules from './pages/Rules';
 import Help from './pages/Help';
 import Politic from './pages/Politic';
@@ -26,8 +24,6 @@ export default function App() {
           <Route path="relizes" element={<Relizes />} />
           <Route path="random" element={<Random />} />
           <Route path="anime/:id" element={<AnimeInfo />} />
-          <Route path="payment" element={<Payment />} />
-          <Route path="paywall" element={<Paywall />} />
           <Route path="rules" element={<Rules />} />
           <Route path="help" element={<Help />} />
           <Route path="politic" element={<Politic />} />
