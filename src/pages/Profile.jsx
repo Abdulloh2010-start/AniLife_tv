@@ -54,8 +54,8 @@ export default function Profile() {
   if (!user) return <p>Вы не вошли в систему</p>;
 
   return (
-    <div className="profile">
-      <div className="profile-header">
+    <main className="profile">
+      <section className="profile-header">
         <img
           src={user.photoURL || "/default-avatar.png"}
           alt="Фото профиля"
@@ -66,9 +66,9 @@ export default function Profile() {
           <h2>{user.displayName}</h2>
           <p className="email">{user.email}</p>
         </div>
-      </div>
+      </section>
 
-      <div className="profile-details">
+      <section className="profile-details">
         <div className="login-data">
           <strong>Дата регистрации:</strong>{" "}
           {new Date(user.metadata.creationTime).toLocaleDateString()}
@@ -90,9 +90,9 @@ export default function Profile() {
         ) : (
           <div className="detail-item">Определяем местоположение…</div>
         )}
-      </div>
+      </section>
 
       <button className="btn-logout" onClick={logout}>Выйти</button>
-    </div>
+    </main>
   );
 };

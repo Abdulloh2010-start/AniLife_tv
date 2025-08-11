@@ -8,7 +8,7 @@ export default function Settings() {
     return (
         <main className="settings-page">
             <h2>Настройки</h2>
-            <div className="settings-group">
+            <section className="settings-group">
                 <label>Тема интерфейса:</label>
                 <div className="theme-buttons">
                     <button
@@ -30,7 +30,7 @@ export default function Settings() {
                         Системная
                     </button>
                 </div>
-            </div>
+            </section>
         </main>
     );
 }

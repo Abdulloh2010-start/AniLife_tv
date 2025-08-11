@@ -132,10 +132,10 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="home">
+      <section className="home">
         <h1>Расписание Аниме</h1>
         <p className="loading">Загрузка...</p>
-      </div>
+      </section>
     );
   }
 
@@ -144,15 +144,15 @@ export default function Home() {
   if (daysWithItems.length === 0) {
     console.log('[Home] No releases found after normalization. schedule:', schedule);
     return (
-      <div className="home">
+      <section className="home">
         <h1>Расписание Аниме</h1>
         <p>Пока нет доступных релизов.</p>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="home">
+    <main className="home">
       <h1>Расписание Аниме</h1>
 
       {daysWithItems.map(dayItem => {
@@ -170,6 +170,6 @@ export default function Home() {
           </section>
         );
       })}
-    </div>
+    </main>
   );
 };

@@ -168,17 +168,17 @@ export default function AnimeInfo() {
 
   if (loading) {
     return (
-      <div className="anime-info">
+      <section className="anime-info">
         <p>Загрузка...</p>
-      </div>
+      </section>
     );
   }
 
   if (!anime) {
     return (
-      <div className="anime-info">
+      <section className="anime-info">
         <p>Аниме не найдено</p>
-      </div>
+      </section>
     );
   }
 
@@ -206,12 +206,12 @@ export default function AnimeInfo() {
     if (currentEpData.external && currentEpData.url) {
       const extUrl = currentEpData.url.startsWith('//') ? `https:${currentEpData.url}` : currentEpData.url;
       return (
-        <div>
+        <section>
           <p>Видео доступно во внешнем плеере:</p>
           <a href={extUrl} target="_blank" rel="noreferrer noopener">
             Открыть внешний плеер
           </a>
-        </div>
+        </section>
       );
     }
 
@@ -223,10 +223,10 @@ export default function AnimeInfo() {
   };
 
   return (
-    <div className="anime-info">
+    <main className="anime-info">
       <h1>{title}</h1>
 
-      <div className="info-block">
+      <section className="info-block">
         <img
           src={poster}
           alt={title}
@@ -249,9 +249,9 @@ export default function AnimeInfo() {
             <strong>Статус:</strong> {resolveStatus(anime)}
           </p>
         </div>
-      </div>
+      </section>
 
-      <div className="episodes">
+      <section className="episodes">
         {!hasEpisodes ? (
           anime.external_player ? (
             <div className="external-player">
@@ -305,7 +305,7 @@ export default function AnimeInfo() {
         )}
 
         {hasEpisodes && selectedEp && <div className="episode-player">{renderPlayer()}</div>}
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };

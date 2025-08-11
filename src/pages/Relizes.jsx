@@ -59,20 +59,20 @@ export default function Relizes() {
   }
 
   return (
-    <div className="relizes">
-      <div className="filters">
+    <main className="relizes">
+      <section className="filters">
         <input type="text" placeholder="Поиск релизов..." value={search} onChange={handleSearch} />
-      </div>
+      </section>
 
       {loading ? (
         <p>Загрузка релизов...</p>
       ) : animeList.length > 0 ? (
-        <div className="anime-grid">
+        <section className="anime-grid">
           {animeList.map(anime => <AnimeCard key={anime.id} anime={anime} />)}
-        </div>
+        </section>
       ) : (
         <p>Ничего не найдено.</p>
       )}
-    </div>
+    </main>
   )
 };

@@ -140,8 +140,8 @@ export default function LoginPage(){
   return (
     <>
       <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
-      <div className={`container${isRegistering ? " active" : ""}`} id="container">
-        <div className="form-container sign-up">
+      <main className={`container${isRegistering ? " active" : ""}`} id="container">
+        <section className="form-container sign-up">
           <form onSubmit={handleRegister}>
             <h1 className="black">Создать аккаунт</h1>
             {message && <p className="message">{message}</p>}
@@ -162,8 +162,8 @@ export default function LoginPage(){
             </div>
             <button type="submit">Зарегистрироваться</button>
           </form>
-        </div>
-        <div className="form-container sign-in">
+        </section>
+        <section className="form-container sign-in">
           <form onSubmit={handleEmailSignIn}>
             <h1 className="black">Вход</h1>
             <div className="social-icons">
@@ -184,8 +184,8 @@ export default function LoginPage(){
             <a className="password-i">Забыли пароль?</a>
             <button type="submit">Войти</button>
           </form>
-        </div>
-        <div className="toggle-container">
+        </section>
+        <section className="toggle-container">
           <div className="toggle">
             <div className="toggle-panel toggle-left">
               <h1>С возвращением!</h1>
@@ -198,8 +198,8 @@ export default function LoginPage(){
               <button className="hidden" id="register" onClick={() => { setErrorEmailSignUp(""); setErrorPasswordSignUp(""); setGeneralErrorSignUp(""); setMessage(""); setIsRegistering(true); }}>Регистрация</button>
             </div>
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
     </>
   );
 };

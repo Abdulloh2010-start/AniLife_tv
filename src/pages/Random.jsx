@@ -89,7 +89,7 @@ export default function Random() {
   }, []);
 
   return (
-    <div className="random-anime">
+    <main className="random-anime">
       <button className="random-anime__btn" onClick={fetchRandom} disabled={loading}>
         {loading ? 'Загрузка...' : 'Случайное аниме'}
       </button>
@@ -98,7 +98,7 @@ export default function Random() {
       {anime && (
         <>
           <h2 className='title'>{anime.name?.main}</h2>
-          <div className="info-block">
+          <section className="info-block">
             <img src={getPosterUrl(anime.poster)} alt={anime.name?.main} />
             <div>
               <p className='text'><strong>Описание:</strong> {anime.description || 'нет описания'}</p>
@@ -106,9 +106,9 @@ export default function Random() {
               <p className='text'><strong>Сезон:</strong> {anime.season?.description} {anime.year}</p>
               <p className='text'><strong>Возраст:</strong> {anime.age_rating?.label}</p>
             </div>
-          </div>
+          </section>
 
-          <div className="episodes">
+          <section className="episodes">
             <div className="custom-select" ref={dropdownRef}>
               <button className="custom-select__trigger" onClick={() => setDropdownOpen(!dropdownOpen)}>
                 {currentEpisode ? `Серия ${currentEpisode.ordinal}` : 'Выбрать серию'}
@@ -126,9 +126,9 @@ export default function Random() {
                 <video id="video-player" controls></video>
               </div>
             )}
-          </div>
+          </section>
         </>
       )}
-    </div>
+    </main>
   );
 }
