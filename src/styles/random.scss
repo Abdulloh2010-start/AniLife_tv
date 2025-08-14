@@ -289,3 +289,129 @@ $light-selected-text: black;
     }
   }
 }
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-clip: padding-box;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  height: 100%;
+  width: 150%;
+  transform: translateX(0);
+  animation: shimmer 1.2s linear infinite;
+  background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.08), rgba(255,255,255,0));
+  pointer-events: none;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-150%);
+  }
+  100% {
+    transform: translateX(150%);
+  }
+}
+
+.skeleton-line {
+  height: 14px;
+  border-radius: 2px;
+  margin: 8px 0;
+  background-color: rgba(255,255,255,0.06);
+}
+
+.skeleton-line--lg {
+  height: 28px;
+  width: 100%;
+  border-radius: 3px;
+  margin-bottom: 16px;
+}
+
+.skeleton-line--xl {
+  height: 100px;
+  width: 100%;
+  border-radius: 3px;
+  margin-bottom: 5px;
+}
+
+.skeleton-line--md {
+  height: 30px;
+  width: 100%;
+  border-radius: 3px;
+}
+
+.skeleton-line--sm {
+  height: 44px;
+  width: 100%;
+  border-radius: 2px;
+}
+
+.skeleton-line--button {
+  height: 40px;
+  width: 98%;
+  border-radius: 3px;
+  margin-bottom: 10px;
+}
+
+.skeleton-avatar {
+  width: 250px;
+  height: 360px;
+  border-radius: 2px;
+  background-color: rgba(255,255,255,0.04);
+  flex-shrink: 0;
+}
+
+.skeleton-player {
+  width: 98%;
+  height: 450px;
+  border-radius: 3px;
+  background-color: rgba(255,255,255,0.04);
+  margin-bottom: 200px;
+}
+
+.skeleton-genres {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.skeleton-pill {
+  width: 80px;
+  height: 28px;
+  border-radius: 2px;
+  background-color: rgba(255,255,255,0.03);
+  display: inline-block;
+}
+
+.skeleton-episodes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.anime-info .skeleton-line,
+.anime-info .skeleton-avatar,
+.anime-info .skeleton-player,
+.anime-info .skeleton-pill {
+  transition: background-color 0.2s ease;
+}
+
+[data-theme="dark"] .anime-info .skeleton-line,
+[data-theme="dark"] .anime-info .skeleton-avatar,
+[data-theme="dark"] .anime-info .skeleton-player,
+[data-theme="dark"] .anime-info .skeleton-pill {
+  background-color: rgba(124, 124, 124, 0.259);
+}
+
+[data-theme="light"] .anime-info .skeleton-line,
+[data-theme="light"] .anime-info .skeleton-avatar,
+[data-theme="light"] .anime-info .skeleton-player,
+[data-theme="light"] .anime-info .skeleton-pill {
+  background-color: #969696;
+}

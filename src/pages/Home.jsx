@@ -1,22 +1,16 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import AnimeCard from '../components/AnimeCard';
+import AnimeCardSkeleton from '../components/AnimeCardSkeleton';
 import '../styles/home.scss';
 import { Helmet } from '@dr.pogodin/react-helmet';
 
 const daysOfWeek = [
-  'Понедельник',
-  'Вторник',
-  'Среда',
-  'Четверг',
-  'Пятница',
-  'Суббота',
-  'Воскресенье',
+  'Понедельник','Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье'
 ];
 
 const groupItemsToBuckets = (items = []) => {
   const buckets = Array.from({ length: 7 }, (_, i) => ({ day: i, list: [] }));
-
   const getDayIndex = (item, release) => {
     const pub = release?.publish_day?.value ?? release?.publish_day ?? null;
     if (typeof pub === 'number' && !Number.isNaN(pub)) {
@@ -28,7 +22,6 @@ const groupItemsToBuckets = (items = []) => {
     }
     return 0;
   };
-
   items.forEach(item => {
     if (Array.isArray(item.list) && item.list.length > 0) {
       item.list.forEach(entry => {
@@ -38,24 +31,20 @@ const groupItemsToBuckets = (items = []) => {
       });
       return;
     }
-
     if (item.release) {
       const rel = item.release;
       const idx = getDayIndex(item, rel);
       buckets[idx].list.push(item);
       return;
     }
-
     if (item.id || item.alias) {
       const rel = item;
       const idx = getDayIndex(item, rel);
       buckets[idx].list.push({ release: rel });
       return;
     }
-
     console.warn('[Home] Unknown item format in grouping, skipping:', item);
   });
-
   return buckets;
 };
 
@@ -65,45 +54,35 @@ export default function Home() {
 
   useEffect(() => {
     const STORAGE_KEY = 'schedule_v1';
-
     const tryLoadFromCache = () => {
       const saved = sessionStorage.getItem(STORAGE_KEY);
       if (!saved) return false;
-
       try {
         const parsed = JSON.parse(saved);
-
         const looksLikeBuckets =
           Array.isArray(parsed) &&
           parsed.length === 7 &&
           parsed.every(d => d && Array.isArray(d.list) && typeof d.day === 'number');
-
         if (looksLikeBuckets) {
           setSchedule(parsed);
           return true;
         }
-
         if (Array.isArray(parsed) && parsed.length > 0) {
           const grouped = groupItemsToBuckets(parsed);
-          console.log('[Home] Grouped cached raw items into buckets:', grouped.map(b => ({ day: b.day, count: b.list.length })));
           sessionStorage.setItem(STORAGE_KEY, JSON.stringify(grouped));
           setSchedule(grouped);
           return true;
         }
-
         return false;
-      } catch (err) {
-        console.warn('[Home] Failed parse cache, clearing.', err);
+      } catch {
         sessionStorage.removeItem(STORAGE_KEY);
         return false;
       }
     };
-
     if (tryLoadFromCache()) {
       setLoading(false);
       return;
     }
-
     axios
       .get('https://anilibria.top/api/v1/anime/schedule/week')
       .then(res => {
@@ -113,37 +92,39 @@ export default function Home() {
           sessionStorage.setItem(STORAGE_KEY, JSON.stringify(grouped));
           return;
         }
-
         if (res.data && Array.isArray(res.data.list)) {
           const grouped = groupItemsToBuckets(res.data.list);
           setSchedule(grouped);
           sessionStorage.setItem(STORAGE_KEY, JSON.stringify(grouped));
           return;
         }
-
-        console.error('[Home] Неверный формат ответа API:', res.data);
         setSchedule([]);
       })
-      .catch(err => {
-        console.error('[Home] Ошибка загрузки расписания:', err);
-        setSchedule([]);
-      })
+      .catch(() => setSchedule([]))
       .finally(() => setLoading(false));
   }, []);
 
   if (loading) {
     return (
-      <section className="home">
+      <main className="home">
         <h1>Расписание Аниме</h1>
-        <p className="loading">Загрузка...</p>
-      </section>
+        {daysOfWeek.map((day, idx) => (
+          <section key={idx} className="day-section">
+            <h2>{day}</h2>
+            <div className="anime-grid">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <AnimeCardSkeleton key={`${idx}-${i}`} />
+              ))}
+            </div>
+          </section>
+        ))}
+      </main>
     );
   }
 
   const daysWithItems = (Array.isArray(schedule) ? schedule : []).filter(d => Array.isArray(d.list) && d.list.length > 0);
 
   if (daysWithItems.length === 0) {
-    console.log('[Home] No releases found after normalization. schedule:', schedule);
     return (
       <section className="home">
         <h1>Расписание Аниме</h1>
@@ -164,7 +145,6 @@ export default function Home() {
         <link rel="canonical" href="https://anilifetv.vercel.app/home" />
       </Helmet>
       <h1>Расписание Аниме</h1>
-
       {daysWithItems.map(dayItem => {
         const dayIndex = typeof dayItem.day === 'number' ? dayItem.day : 0;
         return (

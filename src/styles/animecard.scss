@@ -131,3 +131,48 @@ $link-color-light: #333;
     }
   }
 }
+
+.anime-card.skeleton {
+  pointer-events: none;
+
+  .anime-card__image,
+  .anime-card__title,
+  .anime-card__meta {
+    background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.4s ease infinite;
+  }
+
+  .anime-card__image {
+    width: 90%;
+    height: 70%;
+    margin: 0 auto;
+    margin-top: 10px;
+    aspect-ratio: 3/4;
+    border-radius: 8px;
+  }
+
+  .anime-card__title {
+    height: 20px;
+    width: 80%;
+    margin: 10px 0 10px;
+    margin-left: 10px;
+    border-radius: 4px;
+  }
+
+  .anime-card__meta {
+    margin-left: 10px;
+    height: 18px;
+    width: 50%;
+    border-radius: 4px;
+  }
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

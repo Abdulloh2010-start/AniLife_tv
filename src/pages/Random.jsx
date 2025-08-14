@@ -18,7 +18,7 @@ export default function Random() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const fetchRandom = async () => {
+  const fetchRandom = async (delay = 0) => {
     try {
       setLoading(true);
       setError(null);
@@ -26,20 +26,20 @@ export default function Random() {
       setEpisodes([]);
       setCurrentEpisode(null);
 
+      if (delay > 0) await new Promise((r) => setTimeout(r, delay));
+
       const randomRes = await axios.get('https://anilibria.top/api/v1/anime/releases/random');
       if (!Array.isArray(randomRes.data) || randomRes.data.length === 0) {
         throw new Error('API вернуло пустой ответ');
       }
       const release = randomRes.data[0];
 
-      const detailsRes = await axios.get(
-        `https://anilibria.top/api/v1/anime/releases/${release.alias}`
-      );
+      const detailsRes = await axios.get(`https://anilibria.top/api/v1/anime/releases/${release.alias}`);
       const fullAnime = detailsRes.data;
       setAnime(fullAnime);
       setEpisodes(fullAnime.episodes || []);
 
-      if (fullAnime.episodes.length > 0) {
+      if (Array.isArray(fullAnime.episodes) && fullAnime.episodes.length > 0) {
         loadEpisode(fullAnime.episodes[0].id);
       }
     } catch (err) {
@@ -52,9 +52,7 @@ export default function Random() {
 
   const loadEpisode = async (episodeId) => {
     try {
-      const epRes = await axios.get(
-        `https://anilibria.top/api/v1/anime/releases/episodes/${episodeId}`
-      );
+      const epRes = await axios.get(`https://anilibria.top/api/v1/anime/releases/episodes/${episodeId}`);
       setCurrentEpisode(epRes.data);
     } catch (err) {
       console.error(err);
@@ -63,7 +61,9 @@ export default function Random() {
   };
 
   useEffect(() => {
-    fetchRandom();
+    const params = new URLSearchParams(window.location.search);
+    const skeletonMs = parseInt(params.get('skeleton') || '0', 10);
+    fetchRandom(skeletonMs > 0 ? skeletonMs : 0);
   }, []);
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function Random() {
         const hls = new Hls();
         hls.loadSource(currentEpisode.hls_720);
         hls.attachMedia(video);
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      } else if (video && video.canPlayType && video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = currentEpisode.hls_720;
       }
     }
@@ -89,6 +89,38 @@ export default function Random() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  if (loading) {
+    return (
+      <main className="anime-info" aria-busy="true">
+        <section className="skeleton-header">
+          <div className="skeleton-title skeleton-line skeleton-line--lg" />
+        </section>
+
+        <section className="info-block">
+          <div className="skeleton-avatar skeleton" />
+          <div className="text">
+            <div className="skeleton-line skeleton-line--xl" />
+            <div className="skeleton-line skeleton-line--md" />
+            <div className="skeleton-genres">
+              <span className="skeleton-pill skeleton" />
+              <span className="skeleton-pill skeleton" />
+              <span className="skeleton-pill skeleton" />
+            </div>
+            <div className="skeleton-line skeleton-line--sm" />
+            <div className="skeleton-line skeleton-line--sm" />
+          </div>
+        </section>
+
+        <section className="episodes">
+          <div className="skeleton-episodes">
+            <div className="skeleton-line skeleton-line--button" />
+            <div className="skeleton-player skeleton" />
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="random-anime">
       <Helmet>
@@ -100,21 +132,22 @@ export default function Random() {
         <link rel="canonical" href="https://anilifetv.vercel.app/random" />
       </Helmet>
 
-      <button className="random-anime__btn" onClick={fetchRandom} disabled={loading}>
+      <button className="random-anime__btn" onClick={() => fetchRandom()} disabled={loading}>
         {loading ? 'Загрузка...' : 'Случайное аниме'}
       </button>
       {error && <p className="error">{error}</p>}
 
       {anime && (
         <>
-          <h2 className='title'>{anime.name?.main}</h2>
+          <h2 className="title">{anime.name?.main}</h2>
+
           <section className="info-block">
-            <img src={getPosterUrl(anime.poster)} alt={anime.name?.main} />
+            <img src={getPosterUrl(anime.poster)} alt={anime.name?.main} loading="lazy" />
             <div>
-              <p className='text'><strong>Описание:</strong> {anime.description || 'нет описания'}</p>
-              <p className='text'><strong>Жанры:</strong>{' '}{anime.genres?.map((g) => (<span key={g.id} className="genre">{g.name}</span>))}</p>
-              <p className='text'><strong>Сезон:</strong> {anime.season?.description} {anime.year}</p>
-              <p className='text'><strong>Возраст:</strong> {anime.age_rating?.label}</p>
+              <p className="text"><strong>Описание:</strong> {anime.description || 'нет описания'}</p>
+              <p className="text"><strong>Жанры:</strong>{' '}{anime.genres?.map((g) => (<span key={g.id} className="genre">{g.name}</span>))}</p>
+              <p className="text"><strong>Сезон:</strong> {anime.season?.description} {anime.year}</p>
+              <p className="text"><strong>Возраст:</strong> {anime.age_rating?.label}</p>
             </div>
           </section>
 

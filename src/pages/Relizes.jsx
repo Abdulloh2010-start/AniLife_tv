@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import AnimeCard from '../components/AnimeCard';
+import AnimeCardSkeleton from '../components/AnimeCardSkeleton';
 import '../styles/relizes.scss';
 
 export default function Relizes() {
@@ -77,7 +78,11 @@ export default function Relizes() {
       </section>
 
       {loading ? (
-        <p>Загрузка релизов...</p>
+        <section className="anime-grid">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <AnimeCardSkeleton key={i} />
+          ))}
+        </section>
       ) : animeList.length > 0 ? (
         <section className="anime-grid">
           {animeList.map(anime => <AnimeCard key={anime.id} anime={anime} />)}
