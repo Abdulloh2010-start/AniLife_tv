@@ -1,0 +1,92 @@
+$dark-text-color: #fff;
+$dark-input-bg: #1a1a1a;
+$dark-input-border: #444;
+$dark-input-focus-border: #9b5cf7;
+$dark-input-placeholder: #888;
+
+$light-text-color: #333;
+$light-input-bg: #fff;
+$light-input-border: #ccc;
+$light-input-focus-border: #5f7edb;
+$light-input-placeholder: #888;
+
+.relizes {
+  padding: 2rem;
+  color: $dark-text-color;
+  transition: color 0.3s ease;
+
+  .filters {
+    margin-bottom: 1.5rem;
+
+    input {
+      width: 100%;
+      max-width: 400px;
+      padding: 0.75rem 1.25rem;
+      font-size: 1rem;
+      border-radius: 20px;
+      border: 1px solid $dark-input-border;
+      background-color: $dark-input-bg;
+      color: $dark-text-color;
+      transition: all 0.3s ease;
+
+      &:focus {
+        outline: none;
+        border-color: $dark-input-focus-border;
+        box-shadow: 0 0 10px rgba($dark-input-focus-border, 0.4);
+      }
+
+      &::placeholder {
+        color: $dark-input-placeholder;
+        transition: color 0.3s ease;
+      }
+    }
+  }
+
+  .anime-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+
+
+@media (max-width: 768px) {
+  .relizes {
+    padding: 1rem;
+
+    .filters {
+      input {
+        max-width: 100%;
+      }
+    }
+
+    .anime-grid {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1rem;
+    }
+  }
+}
+
+[data-theme="light"] {
+  .relizes {
+    color: $light-text-color;
+
+    .filters {
+      input {
+        background-color: $light-input-bg;
+        border-color: $light-input-border;
+        color: $light-text-color;
+
+        &:focus {
+          border-color: $light-input-focus-border;
+          box-shadow: 0 0 10px rgba($light-input-focus-border, 0.2);
+        }
+
+        &::placeholder {
+          color: $light-input-placeholder;
+        }
+      }
+    }
+  }
+}
