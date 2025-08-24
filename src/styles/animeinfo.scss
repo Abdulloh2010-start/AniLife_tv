@@ -71,13 +71,14 @@ $arrow-color-light: #333;
 
   .episodes {
     width: 960px;
-    height: 580px;
+    height: 610px;
     background: $info-block-bg-dark;
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
-    padding-left: 20px;
+    padding-left: 50px;
     padding-top: 20px;
+    padding-bottom: 10px;
 
     .episodes-notfound {
       font-size: 50px;
@@ -139,18 +140,6 @@ $arrow-color-light: #333;
       }
     }
   }
-
-  .video-player {
-    margin-bottom: 20px;
-
-    video {
-      width: 80%;
-      max-width: 600px;
-      max-height: 600px;
-      border-radius: 10px;
-      border: 2px solid $link-color-dark; 
-    }
-  }
 }
 
 [data-theme="light"] {
@@ -190,12 +179,6 @@ $arrow-color-light: #333;
         &:hover {
           background: $select-option-hover-light;
         }
-      }
-    }
-
-    .video-player {
-      video {
-        border-color: $link-color-light;
       }
     }
   }

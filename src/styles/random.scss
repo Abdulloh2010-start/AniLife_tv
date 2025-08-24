@@ -160,19 +160,10 @@ $light-selected-text: black;
       }
     }
   }
-
-  .video-player {
-    margin-bottom: 20px;
-
-    video {
-      width: 98%;
-      transition: border-color 0.3s ease;
-    }
-  }
 }
 
-#video-player{
-  max-height: 450px;
+.video-player{
+  margin-bottom: 20px;
 }
 
 #skeletonbtn {
@@ -390,6 +381,7 @@ $light-selected-text: black;
   border-radius: 3px;
   background-color: rgba(255,255,255,0.04);
   margin-bottom: 200px;
+  margin-right: 30px;
 }
 
 .skeleton-genres {
@@ -410,6 +402,8 @@ $light-selected-text: black;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  margin-right: 30px;
+  margin-top: 10px;
   align-items: flex-start;
 }
 

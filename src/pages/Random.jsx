@@ -1,7 +1,7 @@
 import { Helmet } from '@dr.pogodin/react-helmet';
 import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import Hls from 'hls.js';
+import AnimePlayer from '../components/AnimePlayer';
 import '../styles/random.scss';
 
 const getPosterUrl = (poster) => {
@@ -65,19 +65,6 @@ export default function Random() {
     const skeletonMs = parseInt(params.get('skeleton') || '0', 10);
     fetchRandom(skeletonMs > 0 ? skeletonMs : 0);
   }, []);
-
-  useEffect(() => {
-    if (currentEpisode?.hls_720) {
-      const video = document.getElementById('video-player');
-      if (Hls.isSupported()) {
-        const hls = new Hls();
-        hls.loadSource(currentEpisode.hls_720);
-        hls.attachMedia(video);
-      } else if (video && video.canPlayType && video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = currentEpisode.hls_720;
-      }
-    }
-  }, [currentEpisode]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -169,7 +156,9 @@ export default function Random() {
 
             {currentEpisode && (
               <div className="video-player">
-                <video id="video-player" controls></video>
+                <AnimePlayer
+                  url={currentEpisode.hls_720}
+                />
               </div>
             )}
           </section>
