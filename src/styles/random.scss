@@ -175,6 +175,20 @@ $light-selected-text: black;
   max-height: 450px;
 }
 
+#skeletonbtn {
+  position: fixed;
+  top: -1px;
+  left: 250px;
+  width: 90%;
+  height: 50px;
+  background: $dark-btn-bg;
+  color: $dark-text-color;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+  margin-bottom: 100px;
+}
+
 [data-theme="light"] {
   .random-anime {
     color: $light-text-color;
@@ -231,6 +245,10 @@ $light-selected-text: black;
         border-color: $light-link-color;
       }
     }
+  }
+  #skeletonbtn {
+    background: $light-btn-bg;
+    color: $light-btn-text;
   }
 }
 
@@ -400,6 +418,10 @@ $light-selected-text: black;
 .anime-info .skeleton-player,
 .anime-info .skeleton-pill {
   transition: background-color 0.2s ease;
+}
+
+#margin{
+  margin-top: 70px;
 }
 
 [data-theme="dark"] .anime-info .skeleton-line,

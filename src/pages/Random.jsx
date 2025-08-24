@@ -91,7 +91,10 @@ export default function Random() {
 
   if (loading) {
     return (
-      <main className="anime-info" aria-busy="true">
+      <main className="anime-info" id='margin' aria-busy="true">
+        <button id='skeletonbtn' onClick={() => fetchRandom()} disabled={loading}>
+          {loading ? 'Загрузка...' : 'Случайное аниме'}
+        </button>
         <section className="skeleton-header">
           <div className="skeleton-title skeleton-line skeleton-line--lg" />
         </section>
