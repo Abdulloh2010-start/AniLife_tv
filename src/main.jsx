@@ -9,16 +9,16 @@ import { HelmetProvider } from "@dr.pogodin/react-helmet";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <NotificationsProvider>
-      <HelmetProvider>
-        <BrowserRouter>
-          <ThemeProvider>
-            <UserProvider>
+    <HelmetProvider>
+      <BrowserRouter>
+        <ThemeProvider>
+          <UserProvider>
+            <NotificationsProvider>
               <App />
-            </UserProvider>
-          </ThemeProvider>
-        </BrowserRouter>
-      </HelmetProvider>
-    </NotificationsProvider>
+            </NotificationsProvider>
+          </UserProvider>
+        </ThemeProvider>
+      </BrowserRouter>
+    </HelmetProvider>
   </React.StrictMode>
 );
