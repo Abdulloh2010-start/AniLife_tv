@@ -41,7 +41,7 @@ export default function SideBar() {
     const settingIcon = theme === 'dark' ? assets.white_setting : currentPath === '/settings' ? assets.white_setting : assets.dark_setting;
     const userIcon = theme === 'dark' ? assets.white_user : currentPath === '/profile' ? assets.white_user : assets.dark_user;
     const helpIcon = theme === 'dark' ? assets.white_help : currentPath === '/help' ? assets.white_help : assets.dark_help;
-    const chatIcon = theme === 'dark' ? assets.white_chat : currentPath === '/help' ? assets.white_chat : assets.dark_chat;
+    const chatIcon = theme === 'dark' ? assets.white_chat : currentPath === '/chat' ? assets.white_chat : assets.dark_chat;
 
 
     return (
