@@ -1,5 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, GithubAuthProvider, FacebookAuthProvider, OAuthProvider } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCygkh1HEbOnZ_iUMN4nf7_QN9Yo-Pz6B4",
@@ -18,3 +20,7 @@ export const githubProvider = new GithubAuthProvider();
 export const facebookProvider = new FacebookAuthProvider();
 facebookProvider.addScope("email");
 export const yahooProvider = new OAuthProvider('yahoo.com');
+
+export const db = getFirestore(app);
+export const storage = getStorage(app);
+export default app;

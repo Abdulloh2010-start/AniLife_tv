@@ -13,6 +13,7 @@ import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import LoginPage from './pages/LoginPage';
 import NotFound from './pages/NotFound';
+import ChatPage from './pages/ChatPage';
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="terms" element={<Terms />} />
           <Route path="settings" element={<Settings />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="chat" element={<ChatPage />}/>
           <Route path="*" element={<NotFound />} />
         </Route>
 

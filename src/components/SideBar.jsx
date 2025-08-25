@@ -60,6 +60,7 @@ export default function SideBar() {
                     <NavLink to="/settings" onClick={toggleMenu}><img src={settingIcon} alt="0" loading="lazy"/>Настройки</NavLink>
                     <NavLink to="/profile" onClick={toggleMenu}><img src={userIcon} alt="0" loading="lazy"/>Профиль</NavLink>
                     <NavLink to="/help" onClick={toggleMenu}><img src={helpIcon} alt="0" loading="lazy"/>Помощь</NavLink>
+                    <NavLink to="/chat">Чат</NavLink>
                 </nav>
             </aside>
             <main className="content">

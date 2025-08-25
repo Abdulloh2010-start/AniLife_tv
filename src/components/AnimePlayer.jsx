@@ -110,6 +110,7 @@ export default function AnimePlayer({ url, poster, initialMuted = false }) {
   const containerRef = useRef(null);
   const hlsRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isPaused, setIsPaused] = useState(true);
   const [volume, setVolume] = useState(1);
   const [muted, setMuted] = useState(initialMuted);
   const [duration, setDuration] = useState(0);
@@ -131,9 +132,11 @@ export default function AnimePlayer({ url, poster, initialMuted = false }) {
     if (v.paused) {
       await v.play().catch(() => {});
       setIsPlaying(true);
+      setIsPaused(false);
     } else {
       v.pause();
       setIsPlaying(false);
+      setIsPaused(true);
     }
   }, []);
 
@@ -268,12 +271,18 @@ export default function AnimePlayer({ url, poster, initialMuted = false }) {
     const handleFullscreenChange = () => {
       setIsFullScreen(document.fullscreenElement === containerRef.current);
     };
+    
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => {
+      setIsPlaying(false);
+      setIsPaused(true);
+    };
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     loadVideo();
     v.addEventListener("timeupdate", onTime);
-    v.addEventListener("play", () => setIsPlaying(true));
-    v.addEventListener("pause", () => setIsPlaying(false));
+    v.addEventListener("play", handlePlay);
+    v.addEventListener("pause", handlePause);
 
     return () => {
       v.pause();
@@ -284,8 +293,8 @@ export default function AnimePlayer({ url, poster, initialMuted = false }) {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       v.removeEventListener("loadedmetadata", onLoaded);
       v.removeEventListener("timeupdate", onTime);
-      v.removeEventListener("play", () => setIsPlaying(true));
-      v.removeEventListener("pause", () => setIsPlaying(false));
+      v.removeEventListener("play", handlePlay);
+      v.removeEventListener("pause", handlePause);
     };
   }, [url, autoplay, autoFullscreen]);
 
@@ -341,14 +350,12 @@ export default function AnimePlayer({ url, poster, initialMuted = false }) {
   }, [speed]);
 
   const toggleUI = useCallback(() => {
-    if (isPlaying) {
-      if (isHovering) {
-        containerRef.current.classList.add("hover");
-      } else {
-        containerRef.current.classList.remove("hover");
-      }
+    if (isHovering || isPaused) {
+      containerRef.current.classList.add("hover");
+    } else {
+      containerRef.current.classList.remove("hover");
     }
-  }, [isPlaying, isHovering]);
+  }, [isHovering, isPaused]);
 
   useEffect(() => {
     toggleUI();
@@ -362,7 +369,6 @@ export default function AnimePlayer({ url, poster, initialMuted = false }) {
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       onMouseMove={() => {
-        containerRef.current.classList.add("hover");
         setIsHovering(true);
         clearTimeout(containerRef.current.uiTimeout);
         containerRef.current.uiTimeout = setTimeout(() => {
@@ -379,9 +385,9 @@ export default function AnimePlayer({ url, poster, initialMuted = false }) {
           onClick={togglePlay}
           onDoubleClick={toggleFullscreen}
         />
-        <div className="overlay-center" onClick={togglePlay}>
+        <div className={`overlay-center ${isPaused ? 'visible' : ''}`} onClick={togglePlay}>
           <span className="material-icons big-icon">
-            {isPlaying ? "pause_circle_filled" : "play_circle_filled"}
+            {isPaused ? "play_circle_filled" : "pause_circle_filled"}
           </span>
         </div>
       </div>
