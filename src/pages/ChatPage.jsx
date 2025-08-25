@@ -1,32 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import { useUser } from '../contexts/UserContext';
 import '../styles/chatpage.scss';
-
 import { db, storage } from '../firebase.config';
-import {
-  collection,
-  query,
-  where,
-  orderBy,
-  startAt,
-  endAt,
-  limit,
-  getDocs,
-  addDoc,
-  serverTimestamp,
-  onSnapshot,
-  doc,
-  setDoc,
-  updateDoc,
-  getDoc
-} from 'firebase/firestore';
+import { collection, query, where, orderBy, startAt, endAt, limit, getDocs, addDoc, serverTimestamp, onSnapshot, doc, setDoc, updateDoc, getDoc } from 'firebase/firestore';
 import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
-function computeOnline(presence) {
-  return presence && presence.state === 'online';
-}
 
 export default function ChatPage() {
   const { user } = useUser();
@@ -44,20 +21,10 @@ export default function ChatPage() {
 
   const ensureUserDoc = async (u) => {
     if (!u?.uid || !db) return;
-    try {
-      const userDocRef = doc(db, 'users', u.uid);
-      const snap = await getDoc(userDocRef);
-      if (!snap.exists()) {
-        await setDoc(userDocRef, {
-          uid: u.uid,
-          displayName: u.displayName || '',
-          email: u.email || '',
-          photoURL: u.photoURL || '',
-          createdAt: serverTimestamp()
-        });
-      }
-    } catch (err) {
-      console.warn('ensureUserDoc error', err);
+    const userDocRef = doc(db, 'users', u.uid);
+    const snap = await getDoc(userDocRef);
+    if (!snap.exists()) {
+      await setDoc(userDocRef, { uid: u.uid, displayName: u.displayName || '', email: u.email || '', photoURL: u.photoURL || '', createdAt: serverTimestamp() });
     }
   };
 
@@ -68,14 +35,11 @@ export default function ChatPage() {
     const q = query(coll, where('participants', 'array-contains', me.uid), orderBy('lastUpdated', 'desc'));
     const unsub = onSnapshot(q, (snap) => {
       const arr = [];
-      snap.forEach((docSnap) => {
-        arr.push({ id: docSnap.id, ...docSnap.data() });
-      });
+      snap.forEach(s => arr.push({ id: s.id, ...s.data() }));
       setMyChats(arr);
     }, (err) => {
       console.error('chats onSnapshot error', err);
     });
-
     return () => unsub();
   }, [me]);
 
@@ -83,9 +47,11 @@ export default function ChatPage() {
     if (!db) return;
     const presRef = collection(db, 'presence');
     const unsub = onSnapshot(presRef, (snap) => {
-      let map = {};
-      snap.forEach(doc => { map[doc.id] = doc.data(); });
+      const map = {};
+      snap.forEach(d => map[d.id] = d.data());
       setAllPresence(map);
+    }, (err) => {
+      console.error('presence onSnapshot error', err);
     });
     return () => unsub();
   }, []);
@@ -100,26 +66,7 @@ export default function ChatPage() {
     const unsub = onSnapshot(q, (snap) => {
       const arr = [];
       snap.forEach(s => arr.push({ id: s.id, ...s.data() }));
-
-      // Логика для уведомления о новом сообщении
-      if (arr.length > 0) {
-        const latestMessage = arr[arr.length - 1];
-        const otherUserMeta = getOtherParticipantMeta(activeChat);
-        if (latestMessage.senderId !== me.uid) {
-          toast.info(`${otherUserMeta.displayName}: ${latestMessage.text || 'Вложение'}`, {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-          });
-        }
-      }
-
       setMessages(arr);
-      
       setTimeout(() => {
         const el = document.querySelector('.messages-area');
         if (el) el.scrollTop = el.scrollHeight;
@@ -127,9 +74,8 @@ export default function ChatPage() {
     }, (err) => {
       console.error('messages onSnapshot error', err);
     });
-
     return () => unsub();
-  }, [activeChat, me.uid]);
+  }, [activeChat?.id]);
 
   useEffect(() => {
     if (!db) return;
@@ -138,7 +84,6 @@ export default function ChatPage() {
       setSearchResults([]);
       return;
     }
-
     searchTimer.current = setTimeout(async () => {
       const qStr = search.trim();
       try {
@@ -151,50 +96,40 @@ export default function ChatPage() {
         const usersColl = collection(db, 'users');
         const nameQuery = query(usersColl, orderBy('displayName'), startAt(qStr), endAt(qStr + '\uf8ff'), limit(10));
         const snap2 = await getDocs(nameQuery);
-        snap2.forEach(s => {
-          if (!results.find(r => r.uid === s.id)) results.push({ id: s.id, ...s.data() });
-        });
+        snap2.forEach(s => { if (!results.find(r => r.uid === s.id)) results.push({ id: s.id, ...s.data() }); });
         setSearchResults(results.slice(0, 10));
       } catch (err) {
         console.error('search error', err);
       }
     }, 400);
-
-    return () => {
-      if (searchTimer.current) clearTimeout(searchTimer.current);
-    };
+    return () => { if (searchTimer.current) clearTimeout(searchTimer.current); };
   }, [search]);
 
   const openOrCreateChat = async (otherUser) => {
     if (!me || !otherUser || !db) return;
-    if (otherUser.uid === me.uid) return;
+    const otherUid = otherUser.uid || otherUser.id;
+    if (otherUid === me.uid) return;
     try {
       const chatsRef = collection(db, 'chats');
-      const q = query(chatsRef, where('participants', 'array-contains', otherUser.uid));
+      const q = query(chatsRef, where('participants', 'array-contains', otherUid));
       const snap = await getDocs(q);
       let found = null;
       snap.forEach(d => {
         const data = d.data();
         const parts = data.participants || [];
-        if (Array.isArray(parts) && parts.length === 2 && parts.includes(me.uid) && parts.includes(otherUser.uid)) {
-          found = { id: d.id, ...data };
-        }
+        if (Array.isArray(parts) && parts.length === 2 && parts.includes(me.uid) && parts.includes(otherUid)) found = { id: d.id, ...data };
       });
-
       if (found) {
         setActiveChat(found);
         return found;
       }
-
       const newChat = {
-        participants: [me.uid, otherUser.uid],
-        participantsMeta: {
-          [me.uid]: { displayName: me.displayName || '', email: me.email || '', photoURL: me.photoURL || '' },
-          [otherUser.uid]: { displayName: otherUser.displayName || '', email: otherUser.email || '', photoURL: otherUser.photoURL || '' }
-        },
+        participants: [me.uid, otherUid],
+        participantsMeta: { [me.uid]: { displayName: me.displayName || '', email: me.email || '', photoURL: me.photoURL || '' }, [otherUid]: { displayName: otherUser.displayName || otherUser.display_name || '', email: otherUser.email || '', photoURL: otherUser.photoURL || '' } },
         createdAt: serverTimestamp(),
         lastUpdated: serverTimestamp(),
-        lastMessage: null
+        lastMessage: null,
+        lastMessageSender: null
       };
       const docRef = await addDoc(collection(db, 'chats'), newChat);
       const chatObj = { id: docRef.id, ...newChat };
@@ -216,31 +151,16 @@ export default function ChatPage() {
         const path = `chat_media/${activeChat.id}/${Date.now()}_${file.name}`;
         const sRef = storageRef(storage, path);
         const uploadTask = uploadBytesResumable(sRef, file);
-        await new Promise((res, rej) => {
-          uploadTask.on('state_changed', null, (err) => rej(err), () => res());
-        });
-        mediaUrl = await getDownloadURL(sRef);
+        await new Promise((res, rej) => uploadTask.on('state_changed', null, (err) => rej(err), () => res()));
+        mediaUrl = await getDownloadURL(storageRef(storage, path));
         mediaMeta = { name: file.name, size: file.size, type: file.type };
         fileRef.current.value = null;
       }
-
       const msgsColl = collection(db, `chats/${activeChat.id}/messages`);
-      const msg = {
-        senderId: me.uid,
-        text: text.trim() || '',
-        createdAt: serverTimestamp(),
-        mediaUrl: mediaUrl || null,
-        mediaMeta: mediaMeta || null,
-        type: mediaUrl ? 'media' : 'text'
-      };
+      const msg = { senderId: me.uid, text: text.trim() || '', createdAt: serverTimestamp(), mediaUrl: mediaUrl || null, mediaMeta: mediaMeta || null, type: mediaUrl ? 'media' : 'text' };
       await addDoc(msgsColl, msg);
-
       const chatDoc = doc(db, 'chats', activeChat.id);
-      await updateDoc(chatDoc, {
-        lastMessage: msg.text ? msg.text : (mediaMeta?.name || 'Вложение'),
-        lastUpdated: serverTimestamp()
-      });
-
+      await updateDoc(chatDoc, { lastMessage: msg.text ? msg.text : (mediaMeta?.name || 'Вложение'), lastUpdated: serverTimestamp(), lastMessageSender: me.uid });
       setText('');
     } catch (err) {
       console.error('send error', err);
@@ -261,9 +181,10 @@ export default function ChatPage() {
     return { displayName: 'Чат', photoURL: '' };
   };
 
+  const computeOnline = (presence) => presence && presence.state === 'online';
+
   return (
     <div className="chat-page">
-      <ToastContainer position="top-right" />
       <div className="chat-left">
         <div className="auth-area">
           <div className="me">
@@ -276,11 +197,7 @@ export default function ChatPage() {
         </div>
 
         <div className="search-area">
-          <input
-            placeholder="Найти пользователя (email или имя)..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          <input placeholder="Найти пользователя (email или имя)..." value={search} onChange={(e) => setSearch(e.target.value)} />
           <div className="search-results">
             {searchResults.length === 0 && search.trim() !== '' && <div className="no-results">Ничего не найдено</div>}
             {searchResults.map(u => (
@@ -302,12 +219,9 @@ export default function ChatPage() {
             {myChats.map(c => {
               const other = getOtherParticipantMeta(c);
               const otherPresence = allPresence[other.uid];
+              const time = c.lastUpdated ? (c.lastUpdated.seconds ? new Date(c.lastUpdated.seconds * 1000).toLocaleString() : '') : '';
               return (
-                <div
-                  key={c.id}
-                  className={`chat-row ${activeChat?.id === c.id ? 'active' : ''}`}
-                  onClick={() => setActiveChat(c)}
-                >
+                <div key={c.id} className={`chat-row ${activeChat?.id === c.id ? 'active' : ''}`} onClick={() => setActiveChat(c)}>
                   <div className="avatar-wrapper">
                     {other.photoURL ? (
                       <div className="presence-container">
@@ -322,7 +236,7 @@ export default function ChatPage() {
                     <div className="title">{other.displayName || other.email}</div>
                     <div className="last">{c.lastMessage || 'Нет сообщений'}</div>
                   </div>
-                  <div className="right">{c.lastUpdated ? (new Date(c.lastUpdated.seconds * 1000)).toLocaleString() : ''}</div>
+                  <div className="right">{time}</div>
                 </div>
               );
             })}
@@ -340,7 +254,7 @@ export default function ChatPage() {
                 <img src={getOtherParticipantMeta(activeChat).photoURL || '/default-avatar.png'} alt="" />
                 <div>
                   <div className="title">{getOtherParticipantMeta(activeChat).displayName}</div>
-                  <div className="subtitle">{computeOnline(allPresence[getOtherParticipantMeta(activeChat).uid]) ? 'Онлайн' : 'Был(а):недавно'}</div>
+                  <div className="subtitle">{computeOnline(allPresence[getOtherParticipantMeta(activeChat).uid]) ? 'Онлайн' : 'Был(а): недавно'}</div>
                 </div>
               </div>
             </div>
@@ -366,13 +280,7 @@ export default function ChatPage() {
             </div>
 
             <div className="composer">
-              <input
-                type="text"
-                placeholder="Написать сообщение..."
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') handleSend(); }}
-              />
+              <input type="text" placeholder="Написать сообщение..." value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleSend(); }} />
               <input type="file" ref={fileRef} />
               <button onClick={handleSend} disabled={sending}>{sending ? 'Отправка...' : 'Отправить'}</button>
             </div>
