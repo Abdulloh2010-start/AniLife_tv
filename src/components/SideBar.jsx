@@ -41,6 +41,7 @@ export default function SideBar() {
     const settingIcon = theme === 'dark' ? assets.white_setting : currentPath === '/settings' ? assets.white_setting : assets.dark_setting;
     const userIcon = theme === 'dark' ? assets.white_user : currentPath === '/profile' ? assets.white_user : assets.dark_user;
     const helpIcon = theme === 'dark' ? assets.white_help : currentPath === '/help' ? assets.white_help : assets.dark_help;
+    const chatIcon = theme === 'dark' ? assets.white_chat : currentPath === '/help' ? assets.white_chat : assets.dark_chat;
 
 
     return (
@@ -54,13 +55,13 @@ export default function SideBar() {
                 </div>
                 
                 <nav className={isMenuOpen ? "open" : ""}>
-                    <NavLink to="/" onClick={toggleMenu}><img src={homeIcon} alt="0" loading="lazy"/>Главная</NavLink>
-                    <NavLink to="/relizes" onClick={toggleMenu}><img src={relizIcon} alt="0" loading="lazy"/>Релизы</NavLink>
-                    <NavLink to="/random" onClick={toggleMenu}><img src={randomIcon} alt="0" loading="lazy"/>Рандом</NavLink>
-                    <NavLink to="/settings" onClick={toggleMenu}><img src={settingIcon} alt="0" loading="lazy"/>Настройки</NavLink>
-                    <NavLink to="/profile" onClick={toggleMenu}><img src={userIcon} alt="0" loading="lazy"/>Профиль</NavLink>
-                    <NavLink to="/help" onClick={toggleMenu}><img src={helpIcon} alt="0" loading="lazy"/>Помощь</NavLink>
-                    <NavLink to="/chat">Чат</NavLink>
+                    <NavLink to="/" onClick={toggleMenu}><img src={homeIcon} alt="home" loading="lazy"/>Главная</NavLink>
+                    <NavLink to="/relizes" onClick={toggleMenu}><img src={relizIcon} alt="reliz" loading="lazy"/>Релизы</NavLink>
+                    <NavLink to="/random" onClick={toggleMenu}><img src={randomIcon} alt="random" loading="lazy"/>Рандом</NavLink>
+                    <NavLink to="/settings" onClick={toggleMenu}><img src={settingIcon} alt="settings" loading="lazy"/>Настройки</NavLink>
+                    <NavLink to="/profile" onClick={toggleMenu}><img src={userIcon} alt="user" loading="lazy"/>Профиль</NavLink>
+                    <NavLink to="/help" onClick={toggleMenu}><img src={helpIcon} alt="help" loading="lazy"/>Помощь</NavLink>
+                    <NavLink to="/chat" onClick={toggleMenu}><img src={chatIcon} alt="chat" loading="lazy" />Чат</NavLink>
                 </nav>
             </aside>
             <main className="content">

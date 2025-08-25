@@ -1,4 +1,3 @@
-/* --- Переменные и стили для Light Mode --- */
 [data-theme="light"] {
   --bg-color: #f0f2f5;
   --bg-light: #ffffff;
@@ -8,7 +7,6 @@
   --border-color: #e4e6eb;
 }
 
-/* --- Переменные и стили для Dark Mode (фиолетовая тема) --- */
 [data-theme="dark"] {
   --bg-color: #1a1a2e;
   --bg-light: #202030;
@@ -18,7 +16,6 @@
   --border-color: #3b3b50;
 }
 
-/* --- Базовые стили, которые используют переменные --- */
 .chat-page {
   display: flex;
   height: 100vh;
@@ -29,7 +26,6 @@
   transition: background-color 0.3s, color 0.3s;
 }
 
-/* --- Левая панель (список чатов) --- */
 .chat-left {
   flex-shrink: 0;
   width: 320px;
@@ -56,6 +52,14 @@
         height: 50px;
         border-radius: 50%;
         object-fit: cover;
+      }
+
+      .name {
+        font-weight: 600;
+      }
+      .email {
+        font-size: 12px;
+        color: var(--text-subtle);
       }
     }
   }
@@ -89,6 +93,11 @@
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       border: 1px solid var(--border-color);
 
+      .no-results {
+        padding: 10px;
+        color: var(--text-subtle);
+      }
+
       .search-item {
         display: flex;
         align-items: center;
@@ -117,9 +126,23 @@
     }
   }
 
+  .chats-section {
+    margin-top: 10px;
+    
+    h4 {
+      margin: 0;
+      padding: 0 8px;
+    }
+  }
+
   .chat-list {
     flex: 1;
     overflow-y: auto;
+
+    .no-chats {
+        color: #777;
+        padding: 8px;
+    }
     
     .chat-row {
       display: flex;
@@ -138,27 +161,39 @@
         color: white;
 
         .title { color: white; }
+        .last, .right { color: rgba(255, 255, 255, 0.8); }
+        .avatar-placeholder {
+          background-color: rgba(255, 255, 255, 0.2);
+          color: white;
+        }
       }
       
-      .avatar-placeholder {
-        width: 44px;
-        height: 44px;
-        border-radius: 8px;
-        background-color: var(--border-color);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-size: 1.2em;
-        color: var(--text-subtle);
+      .avatar-wrapper {
+        position: relative;
         margin-right: 15px;
-      }
-      img {
-        width: 44px;
-        height: 44px;
-        border-radius: 8px;
-        object-fit: cover;
-        margin-right: 15px;
+
+        .presence-container {
+          position: relative;
+
+          img {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            object-fit: cover;
+          }
+        }
+        .avatar-placeholder {
+          width: 44px;
+          height: 44px;
+          border-radius: 8px;
+          background-color: var(--border-color);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+          font-size: 1.2em;
+          color: var(--text-subtle);
+        }
       }
       
       .center {
@@ -189,7 +224,6 @@
   }
 }
 
-/* --- Правая панель (окно чата) --- */
 .chat-right {
   flex: 1;
   display: flex;
@@ -219,16 +253,26 @@
       justify-content: space-between;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 
+      .header-info {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      
       img {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
         object-fit: cover;
       }
       .title {
         font-size: 18px;
         font-weight: 600;
         color: var(--text-color);
+      }
+      .subtitle {
+        font-size: 12px;
+        color: var(--text-subtle);
       }
     }
     .messages-area {
@@ -253,6 +297,7 @@
           border-bottom-right-radius: 5px;
 
           a { color: white; text-decoration: underline; }
+          .meta { color: rgba(255, 255, 255, 0.8); }
         }
         
         &.their {
@@ -262,16 +307,22 @@
           box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
+        .message-media {
+          margin-top: 8px;
+
+          img {
+            max-width: 100%;
+            border-radius: 8px;
+          }
+        }
+
         .meta {
           text-align: right;
           font-size: 10px;
           color: var(--text-subtle);
           margin-top: 5px;
         }
-        img {
-          max-width: 100%;
-          border-radius: 8px;
-        }
+        
         a {
           color: var(--primary-color);
           text-decoration: none;
@@ -350,6 +401,11 @@
   .chat-right {
     .chat-window-header {
       padding: 10px;
+
+      img {
+        width: 40px;
+        height: 40px;
+      }
     }
     .messages-area {
       padding: 10px;
@@ -372,3 +428,15 @@
     }
   }
 }
+
+.presence {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  position: absolute;
+  top: 36px;
+  left: 35px;
+}
+
+.presence.online { background: #2ecc71; } 
+.presence.offline { background: #e74c3c; }
