@@ -4,6 +4,7 @@ import '../styles/chatpage.scss';
 import { db, storage } from '../firebase.config';
 import { collection, query, where, orderBy, startAt, endAt, limit, getDocs, addDoc, serverTimestamp, onSnapshot, doc, setDoc, updateDoc, getDoc } from 'firebase/firestore';
 import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { Helmet } from '@dr.pogodin/react-helmet';
 
 export default function ChatPage() {
   const { user } = useUser();
@@ -185,6 +186,15 @@ export default function ChatPage() {
 
   return (
     <div className="chat-page">
+        <Helmet>
+          <title>Чаты - AniLifeTv</title>
+          <meta name="description" content="Общайтесь с другими пользователями AniLifeTV в личных чатах." />
+          <link rel="canonical" href={window.location.href} />
+          <meta property="og:type" content="website" />
+          <meta property="og:title" content="Чат - AniLifeTv" />
+          <meta property="og:description" content="Общайтесь с другими пользователями AniLifeTV в личных чатах." />
+          <meta property="og:url" content={window.location.href} />
+      </Helmet>
       <div className="chat-left">
         <div className="auth-area">
           <div className="me">
