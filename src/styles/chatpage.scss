@@ -169,5 +169,24 @@
   }
 
   #textinp{
-    width: 500px;
+    width: 710px;
   }
+
+.emoji{
+   position: relative;
+   display: flex;
+   align-items: center;
+   gap: 8px;
+}
+
+.eeedit{
+  display: inline-flex;
+  gap: 8px;
+  margin-left: 10px;
+}
+
+.edit-panel{
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}

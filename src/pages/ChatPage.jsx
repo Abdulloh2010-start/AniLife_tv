@@ -189,8 +189,6 @@ export default function ChatPage() {
 
   const removeMessage = async (msgId) => {
     if (!activeChat) return;
-    const ok = window.confirm('Удалить сообщение?');
-    if (!ok) return;
     const msgDoc = doc(db, `chats/${activeChat.id}/messages`, msgId);
     await deleteDoc(msgDoc);
   };
@@ -295,7 +293,6 @@ export default function ChatPage() {
                   <div className="name">{u.displayName || 'Без имени'}</div>
                   <div className="email">{u.email || ''}</div>
                 </div>
-                <button style={{marginLeft: 'auto'}} onClick={(e)=>{ e.stopPropagation(); openProfile(u); }}>Профиль</button>
               </div>
             ))}
           </div>
@@ -354,7 +351,7 @@ export default function ChatPage() {
                   {editingMessageId === m.id ? (
                     <div>
                       <input value={editingText} onChange={(e) => setEditingText(e.target.value)} />
-                      <div style={{display: 'flex', gap: 8, marginTop: 8}}>
+                      <div className='edit-panel'>
                         <button className='btn-save' onClick={() => editMessage(m.id)}>Сохранить</button>
                         <button className='btn-cancel' onClick={() => { setEditingMessageId(null); setEditingText(''); }}>Отмена</button>
                       </div>
@@ -376,7 +373,7 @@ export default function ChatPage() {
                   <div className="meta">
                     <small>{m.createdAt?.seconds ? new Date(m.createdAt.seconds * 1000).toLocaleString() : ''}{m.edited ? ' • отредактировано' : ''}</small>
                     {m.senderId === me.uid && editingMessageId !== m.id && (
-                      <div style={{display: 'inline-flex', gap: 8, marginLeft: 10}}>
+                      <div className='eeedit'>
                         <button className='btn-edit' onClick={() => { setEditingMessageId(m.id); setEditingText(m.text || ''); }}>Изменить</button>
                         <button className='btn-delete' onClick={() => removeMessage(m.id)}>Удалить</button>
                       </div>
@@ -387,7 +384,7 @@ export default function ChatPage() {
             </div>
 
             <div className="composer">
-              <div style={{position: 'relative', display: 'flex', alignItems: 'center', gap: 8}}>
+              <div className='emoji'>
                 <button className="emoji-btn" onClick={() => setShowEmoji(s => !s)}>😊</button>
                 {showEmoji && (
                   <div className="emoji-panel">
@@ -396,10 +393,6 @@ export default function ChatPage() {
                 )}
                 <input id='textinp' ref={textInputRef} type="text" placeholder="Написать сообщение..." value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleSend(); }} />
               </div>
-              <label className="file-label">
-                <input type="file" ref={fileRef} />
-                <span>Файл</span>
-              </label>
               <button onClick={handleSend} disabled={sending}>{sending ? 'Отправка...' : 'Отправить'}</button>
             </div>
           </div>
