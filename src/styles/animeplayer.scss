@@ -75,10 +75,12 @@
   .progress-wrap {
     height: 4px;
     margin-top: 6px;
+    background: #000;
   }
   .progress-thumb {
     width: 8px;
     height: 8px;
+    background-color: white;
   }
   .tooltip {
     top: -22px;
@@ -315,7 +317,6 @@
   transition: height 0.2s ease;
 
   .al-player.hover &:hover {
-    height: 10px;
     .progress-thumb {
       opacity: 1;
       width: 16px;
@@ -350,10 +351,10 @@
 .progress-thumb {
   position: absolute;
   top: 50%;
-  width: 10px;
-  height: 10px;
-  background: var(--accent-color);
-  border-radius: 50%;
+  min-width: 6px;
+  max-width: 6px;
+  background: white;
+  border-radius: 100%;
   transform: translate(-50%, -50%);
   transition: transform 0.08s linear, width 0.2s, height 0.2s;
   z-index: 2;
@@ -493,6 +494,15 @@
   }
   .vol-slider {
     width: 50px;
+      &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        max-width: 10px;
+        max-height: 10px;
+        background: var(--accent-color);
+        border-radius: 50%;
+        margin-top: -1px;
+        margin-left: -0.5px;
+      }
   }
   .time {
     font-size: 10px;

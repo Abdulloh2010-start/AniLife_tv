@@ -30,7 +30,7 @@ export default function App() {
           <Route path="politic" element={<Politic />} />
           <Route path="terms" element={<Terms />} />
           <Route path="settings" element={<Settings />} />
-          <Route path="profile" element={<Profile />} />
+          <Route path="profile/:handle" element={<Profile />} />
           <Route path="chat" element={<ChatPage />}/>
           <Route path="*" element={<NotFound />} />
         </Route>

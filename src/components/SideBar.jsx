@@ -3,70 +3,95 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { assets } from "../images/assets";
 import "../styles/sidebar.scss";
+import { useUser } from "../contexts/UserContext";
 
 export default function SideBar() {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [theme, setTheme] = useState('dark'); 
+  const { user } = useUser();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [theme, setTheme] = useState("dark");
 
-    useEffect(() => {
-        const observer = new MutationObserver(() => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            setTheme(currentTheme);
-        });
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const currentTheme = document.documentElement.getAttribute("data-theme");
+      setTheme(currentTheme);
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    const initialTheme = document.documentElement.getAttribute("data-theme") || "dark";
+    setTheme(initialTheme);
+    return () => observer.disconnect();
+  }, []);
 
-        observer.observe(document.documentElement, {
-            attributes: true,
-            attributeFilter: ['data-theme'],
-        });
+  const toggleMenu = () => setIsMenuOpen((s) => !s);
 
-        const initialTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-        setTheme(initialTheme);
+  const location = useLocation();
+  const currentPath = location.pathname;
+  const isProfilePath = currentPath.startsWith("/profile");
 
-        return () => observer.disconnect();
-    }, []);
+  const menuIcon = theme === "dark" ? assets.white_menu : assets.dark_menu;
+  const closeIcon = theme === "dark" ? assets.white_close : assets.dark_close;
+  const homeIcon = theme === "dark" ? assets.white_home : currentPath === "/" ? assets.white_home : assets.dark_home;
+  const relizIcon = theme === "dark" ? assets.white_reliz : currentPath === "/relizes" ? assets.white_reliz : assets.dark_reliz;
+  const randomIcon = theme === "dark" ? assets.white_random : currentPath === "/random" ? assets.white_random : assets.dark_random;
+  const settingIcon = theme === "dark" ? assets.white_setting : currentPath === "/settings" ? assets.white_setting : assets.dark_setting;
+  const userIcon = theme === "dark" ? assets.white_user : isProfilePath ? assets.white_user : assets.dark_user;
+  const helpIcon = theme === "dark" ? assets.white_help : currentPath === "/help" ? assets.white_help : assets.dark_help;
+  const chatIcon = theme === "dark" ? assets.white_chat : currentPath === "/chat" ? assets.white_chat : assets.dark_chat;
 
-    const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
-    };
+  const slugify = (s) => {
+    if (!s) return "user";
+    let str = s.toString().trim();
+    if (str.includes("@")) str = str.split("@")[0];
+    const parts = str.split(/\s+/).slice(0, 2);
+    const joined = parts.join(" ");
+    return joined.toLowerCase().replace(/[^a-z0-9\u0400-\u04FF]+/gi, "-").replace(/^-+|-+$/g, "");
+  };
 
-    const location = useLocation();
-    const currentPath = location.pathname;
+  const profilePath = user ? `/profile/${slugify(user.displayName || user.email || user.uid)}~${user.uid}` : "/profile";
 
-    
-    const menuIcon = theme === 'dark' ? assets.white_menu : assets.dark_menu;
-    const closeIcon = theme === 'dark' ? assets.white_close : assets.dark_close;
-    const homeIcon = theme === 'dark' ? assets.white_home : currentPath === '/' ? assets.white_home : assets.dark_home;
-    const relizIcon = theme === 'dark' ? assets.white_reliz : currentPath === '/relizes' ? assets.white_reliz : assets.dark_reliz;
-    const randomIcon = theme === 'dark' ? assets.white_random : currentPath === '/random' ? assets.white_random : assets.dark_random;
-    const settingIcon = theme === 'dark' ? assets.white_setting : currentPath === '/settings' ? assets.white_setting : assets.dark_setting;
-    const userIcon = theme === 'dark' ? assets.white_user : currentPath === '/profile' ? assets.white_user : assets.dark_user;
-    const helpIcon = theme === 'dark' ? assets.white_help : currentPath === '/help' ? assets.white_help : assets.dark_help;
-    const chatIcon = theme === 'dark' ? assets.white_chat : currentPath === '/chat' ? assets.white_chat : assets.dark_chat;
-
-
-    return (
-        <div className="layout">
-            <aside className="sidebar">
-                <div className="sidebar-header">
-                    <h1 className="logo">AniLife_tv</h1>
-                    <button className="menu-toggle" onClick={toggleMenu}>
-                        <img src={isMenuOpen ? closeIcon : menuIcon} alt="menu toggle" loading="lazy"/>
-                    </button>
-                </div>
-                
-                <nav className={isMenuOpen ? "open" : ""}>
-                    <NavLink to="/" onClick={toggleMenu}><img src={homeIcon} alt="home" loading="lazy"/>Главная</NavLink>
-                    <NavLink to="/relizes" onClick={toggleMenu}><img src={relizIcon} alt="reliz" loading="lazy"/>Релизы</NavLink>
-                    <NavLink to="/random" onClick={toggleMenu}><img src={randomIcon} alt="random" loading="lazy"/>Рандом</NavLink>
-                    <NavLink to="/settings" onClick={toggleMenu}><img src={settingIcon} alt="settings" loading="lazy"/>Настройки</NavLink>
-                    <NavLink to="/profile" onClick={toggleMenu}><img src={userIcon} alt="user" loading="lazy"/>Профиль</NavLink>
-                    <NavLink to="/help" onClick={toggleMenu}><img src={helpIcon} alt="help" loading="lazy"/>Помощь</NavLink>
-                    <NavLink to="/chat" onClick={toggleMenu}><img src={chatIcon} alt="chat" loading="lazy" />Чат</NavLink>
-                </nav>
-            </aside>
-            <main className="content">
-                <Outlet />
-            </main>
+  return (
+    <div className="layout">
+      <aside className="sidebar">
+        <div className="sidebar-header">
+          <h1 className="logo">AniLife_tv</h1>
+          <button className="menu-toggle" onClick={toggleMenu}>
+            <img src={isMenuOpen ? closeIcon : menuIcon} alt="menu toggle" loading="lazy" />
+          </button>
         </div>
-    );
-};
+
+        <nav className={isMenuOpen ? "open" : ""}>
+          <NavLink to="/" onClick={toggleMenu}>
+            <img src={homeIcon} alt="home" loading="lazy" />
+            Главная
+          </NavLink>
+          <NavLink to="/relizes" onClick={toggleMenu}>
+            <img src={relizIcon} alt="reliz" loading="lazy" />
+            Релизы
+          </NavLink>
+          <NavLink to="/random" onClick={toggleMenu}>
+            <img src={randomIcon} alt="random" loading="lazy" />
+            Рандом
+          </NavLink>
+          <NavLink to="/settings" onClick={toggleMenu}>
+            <img src={settingIcon} alt="settings" loading="lazy" />
+            Настройки
+          </NavLink>
+          <NavLink to={profilePath} onClick={toggleMenu}>
+            <img src={userIcon} alt="user" loading="lazy" />
+            Профиль
+          </NavLink>
+          <NavLink to="/help" onClick={toggleMenu}>
+            <img src={helpIcon} alt="help" loading="lazy" />
+            Помощь
+          </NavLink>
+          <NavLink to="/chat" onClick={toggleMenu}>
+            <img src={chatIcon} alt="chat" loading="lazy" />
+            Чат
+          </NavLink>
+        </nav>
+      </aside>
+      <main className="content">
+        <Outlet />
+      </main>
+    </div>
+  );
+}
