@@ -203,8 +203,6 @@ export default function Profile() {
     return pf || 'Был(а): недавно';
   };
 
-  if (!uid && !user) return <div className="profile"><div className="loader-center"><div className="spinner"></div><div className="loader-text">Войдите, чтобы посмотреть профиль</div></div></div>;
-
   return (
     <>
       <Helmet>
@@ -218,8 +216,8 @@ export default function Profile() {
 
       <main className="profile">
         {loadingProfile ? (
-          <div className="loader-center">
-            <div className="spinner"></div>
+          <div className="loader-center active">
+            <div className="spinnerw"></div>
           </div>
         ) : (
           <>
@@ -235,20 +233,25 @@ export default function Profile() {
               <div className="login-data"><strong>Дата регистрации:</strong> {creationDate()}</div>
               <div className="login-data"><strong>Последний вход:</strong> {lastSignIn()}</div>
 
-              {!locLoading ? (
-                <>
-                  <div className="detail-item"><strong>Город:</strong> {locationInfo.city || '—'}</div>
-                  <div className="detail-item"><strong>Район:</strong> {locationInfo.region || '—'}</div>
-                </>
-              ) : (
-                <div className="detail-item">Определяем местоположение…</div>
-              )}
+            {!locLoading ? (
+              <>
+                <div className="detail-item"><strong>Город:</strong> {locationInfo.city || '—'}</div>
+                <div className="detail-item"><strong>Район:</strong> {locationInfo.region || '—'}</div>
+              </>
+            ) : (
+              <>
+                <div className="detail-item"><strong>Город:</strong>Загрузка...</div>
+                <div className="detail-item"><strong>Район:</strong>Загрузка...</div>
+              </>
+            )}
             </section>
 
-            {!handle && <button className="btn-logout" type="button" onClick={() => { logout(); navigate('/'); }}>Выйти</button>}
+            {user && user.uid === profileUser?.uid && (
+              <button className="btn-logout" type="button" onClick={() => { logout(); navigate('/'); }}>Выйти</button>
+            )}
           </>
         )}
       </main>
     </>
   );
-};
+}

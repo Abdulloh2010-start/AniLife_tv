@@ -214,15 +214,21 @@ $light-border-color: #ddd;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 220px;
+  min-height: 544px;
   gap: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-.loader-text {
-  color: var(--text-subtle);
+.loader-center.active {
+  opacity: 1;
 }
 
 .spinner {
+  display: none;
+}
+
+.spinnerw {
   width: 56px;
   height: 56px;
   border-radius: 50%;
