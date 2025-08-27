@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 
 function isBot() {
   if (typeof navigator === "undefined") return false;
-  return /bot|crawler|spider|crawling/i.test(navigator.userAgent);
+  return /bot|crawler|spider|crawling|Googlebot/i.test(navigator.userAgent);
 }
 
 export default function ProtectedRoute({ children }) {
@@ -13,7 +13,11 @@ export default function ProtectedRoute({ children }) {
     return <div className="spinner">Загрузка...</div>;
   }
 
-  if (!user && !isBot()) {
+  if (isBot()) {
+    return children;
+  }
+
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
 
