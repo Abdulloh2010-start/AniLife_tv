@@ -257,9 +257,9 @@ export default function AnimePlayer({ url, poster, initialMuted = false }) {
         changeVolume(Math.max(0, volume - 0.05));
         return;
       }
-      if (e.key === "f") toggleFullscreen();
-      if (e.key === "m") toggleMute();
-      if (e.key === "p") togglePiP();
+      if (e.key === "f") {toggleFullscreen()};
+      if (e.key === "m") {toggleMute()};
+      if (e.key === "p") {togglePiP()};
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -344,4 +344,4 @@ export default function AnimePlayer({ url, poster, initialMuted = false }) {
       )}
     </div>
   );
-}
+};
