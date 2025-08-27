@@ -19,12 +19,13 @@
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "X-XSS-Protection", "value": "1; mode=block" }
+        { "key": "X-XSS-Protection", "value": "1; mode=block" },
+        { "key": "X-Prerender-Token", "value": "5MZVeG5jSOzhtcQO6XB2" }
       ]
     }
   ],
   "rewrites": [
     { "source": "/(robots.txt|sitemap.xml)", "destination": "/$1" },
-    { "source": "/((?!.*\\.).*)", "destination": "/" }
+    { "source": "/((?!.*\\.).*)", "destination": "https://service.prerender.io/https://anilifetv.vercel.app/$1" }
   ]
 }
