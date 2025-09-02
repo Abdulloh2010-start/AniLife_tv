@@ -22,6 +22,7 @@ export default function App() {
   return (
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="forgot-password" element={<ForgotPassword />}/>
 
         <Route path="/" element={<ProtectedRoute><SideBar /></ProtectedRoute>}>
           <Route index element={<Home />} />
@@ -37,7 +38,6 @@ export default function App() {
           <Route path="chat" element={<ChatPage />}/>
           <Route path="support" element={<Support />}/>
           <Route path="payment" element={<Payment />}/>
-          <Route path="forgot-password" element={<ForgotPassword />}/>
           <Route path="*" element={<NotFound />} />
         </Route>
 

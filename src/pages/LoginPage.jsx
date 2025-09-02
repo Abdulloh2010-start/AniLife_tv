@@ -2,7 +2,7 @@ import { useState } from "react";
 import { auth, googleProvider, githubProvider, facebookProvider, yahooProvider } from "../firebase.config";
 import { signInWithEmailAndPassword, signInWithPopup, createUserWithEmailAndPassword } from "firebase/auth";
 import { useUser } from "../contexts/UserContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/login.scss";
@@ -189,7 +189,7 @@ export default function LoginPage(){
               <input type="password" id="password-signin" placeholder={errorPasswordSignIn} value={passwordSignIn} onChange={e => { setPasswordSignIn(e.target.value); if(errorPasswordSignIn) setErrorPasswordSignIn(""); if(generalErrorSignIn) setGeneralErrorSignIn("");}} className={errorPasswordSignIn ? "input-error" : ""} required/>
               <label htmlFor="password-signin">Пароль</label>
             </div>
-            <a href="https://firebase.com" target="_blank" className="password-i">Забыли пароль?</a>
+            <Link to="/forgot-password" className="password-i">Забыли пароль?</Link>
             <button type="submit" className="button">Войти</button>
           </form>
         </section>
