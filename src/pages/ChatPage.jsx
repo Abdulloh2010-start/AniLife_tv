@@ -530,7 +530,7 @@ export default function ChatPage() {
               <div className="chat-window-header">
                 {isMobile && (
                   <button className="back-btn" onClick={() => { setActiveChat(null); setShowHeaderMenu(false); }}>
-                    ⬅
+                    <span className="material-symbols-outlined">arrow_back</span>
                   </button>
                 )}
 
