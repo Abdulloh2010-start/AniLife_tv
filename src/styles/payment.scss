@@ -1,0 +1,103 @@
+$dark-bg-color: #0d0619;
+$dark-text-color: #e0e0e0;
+$dark-accent-color-1: #ff4bce;
+$dark-accent-color-2: #9b5cf7;
+
+$light-bg-color: #f0f2f5;
+$light-text-color: #333;
+$light-accent-color-1: #007bff;
+$light-accent-color-2: #3498db;
+
+.payment {
+  padding: 2rem;
+  background-color: $dark-bg-color;
+  color: $dark-text-color;
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+
+  h1 {
+    font-size: 2.2rem;
+    margin-bottom: 2rem;
+    color: $dark-accent-color-1;
+    text-shadow: 0 0 8px rgba($dark-accent-color-1, 0.5);
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+  }
+
+  p {
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+    color: $dark-text-color;
+
+    a {
+      color: $dark-accent-color-2;
+      text-decoration: underline;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: $dark-accent-color-1;
+      }
+    }
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    color: $dark-accent-color-2;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid $dark-accent-color-1;
+    padding-left: 0.8rem;
+    text-shadow: 0 0 6px rgba($dark-accent-color-2, 0.3);
+    transition: color 0.3s ease, border-color 0.3s ease, text-shadow 0.3s ease;
+  }
+}
+
+[data-theme="light"] {
+  .payment {
+    background-color: $light-bg-color;
+    color: $light-text-color;
+
+    h1 {
+      color: $light-accent-color-1;
+      text-shadow: 0 0 0;
+    }
+
+    p {
+      color: $light-text-color;
+
+      a {
+        color: $light-accent-color-1;
+
+        &:hover {
+          color: $light-accent-color-2;
+        }
+      }
+    }
+
+    h2 {
+      color: $light-accent-color-2;
+      border-left: 4px solid $light-accent-color-1;
+      text-shadow: none;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .payment {
+    padding: 1rem;
+
+    h1 {
+      font-size: 1.8rem;
+    }
+
+    p {
+      font-size: 0.9rem;
+    }
+
+    h2 {
+      font-size: 1.3rem;
+      margin-top: 2rem;
+    }
+  }
+}

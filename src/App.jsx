@@ -14,6 +14,9 @@ import Profile from './pages/Profile';
 import LoginPage from './pages/LoginPage';
 import NotFound from './pages/NotFound';
 import ChatPage from './pages/ChatPage';
+import Support from './pages/Support';
+import Payment from './pages/Payment';
+import ForgotPassword from './pages/ForgotPassword';
 
 export default function App() {
   return (
@@ -32,6 +35,9 @@ export default function App() {
           <Route path="settings" element={<Settings />} />
           <Route path="profile/:handle" element={<Profile />} />
           <Route path="chat" element={<ChatPage />}/>
+          <Route path="support" element={<Support />}/>
+          <Route path="payment" element={<Payment />}/>
+          <Route path="forgot-password" element={<ForgotPassword />}/>
           <Route path="*" element={<NotFound />} />
         </Route>
 
