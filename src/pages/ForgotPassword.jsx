@@ -30,7 +30,7 @@ export default function ForgotPassword() {
     }
     setLoading(true)
     try {
-      await sendPasswordResetEmail(auth, email, { url: `${window.location.origin}/login` })
+      await sendPasswordResetEmail(auth, email, { url: "https://anilifetv.vercel.app/login" })
       setMessage("Письмо для сброса пароля отправлено на " + email)
       setEmail("")
     } catch (err) {
