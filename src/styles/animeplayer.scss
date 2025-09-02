@@ -521,3 +521,15 @@
     padding: 5px;
   }
 }
+
+@media (max-width: 400px) {
+  .vol-slider {
+    display: none;
+  }
+}
+
+@media (max-width: 345px) {
+  .volume {
+    display: none;
+  }
+}
