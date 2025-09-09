@@ -5,30 +5,27 @@ import AnimePlayer from '../components/AnimePlayer';
 import '../styles/animeinfo.scss';
 import { Helmet } from '@dr.pogodin/react-helmet';
 
-const STATIC_BASE = 'https://static-libria.weekstorm.one';
+const STATIC_BASE = 'https://anilibria.top';
 
 const normalizePosterUrl = (anime) => {
   if (!anime) return '/fallback-poster.png';
-  const p = anime.posters ?? anime.poster ?? anime;
-  const candidates = [];
-  if (p?.original?.url) candidates.push(p.original.url);
-  if (p?.small?.url) candidates.push(p.small.url);
-  if (p?.medium?.url) candidates.push(p.medium.url);
-  if (p?.optimized?.src) candidates.push(p.optimized.src);
-  if (p?.optimized?.preview) candidates.push(p.optimized.preview);
-  if (p?.preview) candidates.push(p.preview);
-  if (p?.src) candidates.push(p.src);
-  if (p?.thumbnail) candidates.push(p.thumbnail);
-  if (anime?.poster?.src) candidates.push(anime.poster.src);
-  if (anime?.poster?.preview) candidates.push(anime.poster.preview);
-  if (anime?.poster?.thumbnail) candidates.push(anime.poster.thumbnail);
-  if (typeof p === 'string' && p) candidates.push(p);
-  const raw = candidates.find(Boolean) || '';
+  const p = anime?.poster ?? anime?.posters ?? anime;
+  const candidates = [
+    p?.optimized?.preview,
+    p?.optimized?.src,
+    p?.preview,
+    p?.src,
+    p?.thumbnail,
+    p?.small?.url,
+    p?.medium?.url,
+    p?.original?.url,
+    anime?.image
+  ].filter(Boolean);
+  const raw = candidates[0] || '';
   if (!raw) return '/fallback-poster.png';
   if (raw.startsWith('http://') || raw.startsWith('https://')) return raw;
   if (raw.startsWith('//')) return `https:${raw}`;
-  const normalized = raw.startsWith('/') ? raw : `/${raw}`;
-  return `${STATIC_BASE}${normalized}`;
+  return `${STATIC_BASE}${raw.startsWith('/') ? raw : '/' + raw}`;
 };
 
 const resolveTitle = (obj) => {
@@ -144,7 +141,6 @@ export default function AnimeInfo() {
         <section className="skeleton-header">
           <div className="skeleton-title skeleton-line skeleton-line--lg" />
         </section>
-
         <section className="info-block">
           <div className="skeleton-avatar skeleton" />
           <div className="text">
@@ -159,7 +155,6 @@ export default function AnimeInfo() {
             <div className="skeleton-line skeleton-line--sm" />
           </div>
         </section>
-
         <section className="episodes">
           <div className="skeleton-episodes">
             <div className="skeleton-line skeleton-line--button" />
@@ -269,4 +264,4 @@ export default function AnimeInfo() {
       </section>
     </main>
   );
-};
+}
