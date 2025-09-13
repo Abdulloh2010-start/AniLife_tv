@@ -37,6 +37,7 @@ export default function ChatPage() {
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const [allPresence, setAllPresence] = useState({});
+  const [playingPreview, setPlayingPreview] = useState(null);
 
   const fileRef = useRef(null);
   const searchTimer = useRef(null);
@@ -52,7 +53,7 @@ export default function ChatPage() {
   const [showEmoji, setShowEmoji] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  const EMOJIS = ['😀', '😂', '😍', '👍', '🔥', '🎉', '😢', '🙌', '🤘', '🥳'];
+  const EMOJIS = ['😀','😂','😍','👍','🔥','🎉','😢','🙌','🤘','🥳'];
 
   useEffect(() => {
     const onRes = () => setIsMobile(window.innerWidth <= 768);
@@ -63,40 +64,34 @@ export default function ChatPage() {
 
   const ensureUserDoc = async (u) => {
     if (!u?.uid || !db) return;
-    const userDocRef = doc(db, 'users', u.uid);
+    const userDocRef = doc(db,'users',u.uid);
     const snap = await getDoc(userDocRef);
     if (!snap.exists()) {
-      await setDoc(userDocRef, {
-        uid: u.uid,
-        displayName: u.displayName || '',
-        email: u.email || '',
-        photoURL: u.photoURL || '',
-        createdAt: serverTimestamp()
-      });
+      await setDoc(userDocRef,{ uid:u.uid, displayName:u.displayName||'', email:u.email||'', photoURL:u.photoURL||'', createdAt:serverTimestamp() });
     }
   };
 
   useEffect(() => {
     if (!me || !db) return;
     ensureUserDoc(me);
-    const coll = collection(db, 'chats');
-    const q = query(coll, where('participants', 'array-contains', me.uid), orderBy('lastUpdated', 'desc'));
-    const unsub = onSnapshot(q, (snap) => {
+    const coll = collection(db,'chats');
+    const q = query(coll, where('participants','array-contains',me.uid), orderBy('lastUpdated','desc'));
+    const unsub = onSnapshot(q,(snap) => {
       const arr = [];
-      snap.forEach((s) => arr.push({ id: s.id, ...s.data() }));
+      snap.forEach((s) => arr.push({ id:s.id, ...s.data() }));
       setMyChats(arr);
-    }, (err) => console.error('chats onSnapshot error', err));
+    }, (err) => console.error('chats onSnapshot error',err));
     return () => unsub();
   }, [me]);
 
   useEffect(() => {
     if (!db) return;
-    const presRef = collection(db, 'presence');
-    const unsub = onSnapshot(presRef, (snap) => {
+    const presRef = collection(db,'presence');
+    const unsub = onSnapshot(presRef,(snap) => {
       const map = {};
       snap.forEach((d) => (map[d.id] = d.data()));
       setAllPresence(map);
-    }, (err) => console.error('presence onSnapshot error', err));
+    }, (err) => console.error('presence onSnapshot error',err));
     return () => unsub();
   }, []);
 
@@ -106,16 +101,17 @@ export default function ChatPage() {
       return;
     }
     const msgsColl = collection(db, `chats/${activeChat.id}/messages`);
-    const q = query(msgsColl, orderBy('createdAt', 'asc'));
-    const unsub = onSnapshot(q, (snap) => {
+    const q = query(msgsColl, orderBy('createdAt','asc'));
+    const unsub = onSnapshot(q,(snap) => {
       const arr = [];
-      snap.forEach((s) => arr.push({ id: s.id, ...s.data() }));
+      snap.forEach((s) => arr.push({ id:s.id, ...s.data() }));
       setMessages(arr);
       setTimeout(() => {
         const el = messagesAreaRef.current || document.querySelector('.messages-area');
         if (el) el.scrollTop = el.scrollHeight;
-      }, 50);
-    }, (err) => console.error('messages onSnapshot error', err));
+      },50);
+      checkAndFillPreviews(arr);
+    }, (err) => console.error('messages onSnapshot error',err));
     return () => unsub();
   }, [activeChat?.id]);
 
@@ -130,23 +126,19 @@ export default function ChatPage() {
       const qStr = search.trim();
       try {
         const results = [];
-        const usersColl = collection(db, 'users');
+        const usersColl = collection(db,'users');
         const qEmailPrefix = query(usersColl, orderBy('email'), startAt(qStr), endAt(qStr + '\uf8ff'), limit(10));
         const snapEmail = await getDocs(qEmailPrefix);
-        snapEmail.forEach((s) => results.push({ id: s.id, uid: s.id, ...s.data() }));
+        snapEmail.forEach((s) => results.push({ id:s.id, uid:s.id, ...s.data() }));
         const nameQuery = query(usersColl, orderBy('displayName'), startAt(qStr), endAt(qStr + '\uf8ff'), limit(10));
         const snap2 = await getDocs(nameQuery);
-        snap2.forEach((s) => {
-          if (!results.find((r) => r.uid === s.id)) results.push({ id: s.id, uid: s.id, ...s.data() });
-        });
-        setSearchResults(results.slice(0, 10));
+        snap2.forEach((s) => { if (!results.find((r) => r.uid === s.id)) results.push({ id:s.id, uid:s.id, ...s.data() }); });
+        setSearchResults(results.slice(0,10));
       } catch (err) {
-        console.error('search error', err);
+        console.error('search error',err);
       }
-    }, 300);
-    return () => {
-      if (searchTimer.current) clearTimeout(searchTimer.current);
-    };
+    },300);
+    return () => { if (searchTimer.current) clearTimeout(searchTimer.current); };
   }, [search]);
 
   const openOrCreateChat = async (otherUser) => {
@@ -154,14 +146,14 @@ export default function ChatPage() {
     const otherUid = otherUser.uid || otherUser.id;
     if (otherUid === me.uid) return;
     try {
-      const chatsRef = collection(db, 'chats');
-      const q = query(chatsRef, where('participants', 'array-contains', otherUid));
+      const chatsRef = collection(db,'chats');
+      const q = query(chatsRef, where('participants','array-contains',otherUid));
       const snap = await getDocs(q);
       let found = null;
       snap.forEach((d) => {
         const data = d.data();
         const parts = data.participants || [];
-        if (Array.isArray(parts) && parts.length === 2 && parts.includes(me.uid) && parts.includes(otherUid)) found = { id: d.id, ...data };
+        if (Array.isArray(parts) && parts.length === 2 && parts.includes(me.uid) && parts.includes(otherUid)) found = { id:d.id, ...data };
       });
       if (found) {
         setActiveChat(found);
@@ -169,23 +161,23 @@ export default function ChatPage() {
         return found;
       }
       const newChat = {
-        participants: [me.uid, otherUid],
-        participantsMeta: {
-          [me.uid]: { displayName: me.displayName || '', email: me.email || '', photoURL: me.photoURL || '' },
-          [otherUid]: { displayName: otherUser.displayName || otherUser.display_name || '', email: otherUser.email || '', photoURL: otherUser.photoURL || '' }
+        participants:[me.uid, otherUid],
+        participantsMeta:{
+          [me.uid]:{ displayName:me.displayName||'', email:me.email||'', photoURL:me.photoURL||'' },
+          [otherUid]:{ displayName:otherUser.displayName||otherUser.display_name||'', email:otherUser.email||'', photoURL:otherUser.photoURL||'' }
         },
-        createdAt: serverTimestamp(),
-        lastUpdated: serverTimestamp(),
-        lastMessage: null,
-        lastMessageSender: null
+        createdAt:serverTimestamp(),
+        lastUpdated:serverTimestamp(),
+        lastMessage:null,
+        lastMessageSender:null
       };
-      const docRef = await addDoc(collection(db, 'chats'), newChat);
-      const chatObj = { id: docRef.id, ...newChat };
+      const docRef = await addDoc(collection(db,'chats'), newChat);
+      const chatObj = { id:docRef.id, ...newChat };
       setActiveChat(chatObj);
       setSearch('');
       return chatObj;
     } catch (err) {
-      console.error('openOrCreateChat error', err);
+      console.error('openOrCreateChat error',err);
     }
   };
 
@@ -197,11 +189,101 @@ export default function ChatPage() {
       for (const d of snap.docs) {
         await deleteDoc(doc(db, `chats/${chatId}/messages`, d.id));
       }
-      await deleteDoc(doc(db, 'chats', chatId));
+      await deleteDoc(doc(db,'chats',chatId));
       if (activeChat?.id === chatId) setActiveChat(null);
     } catch (err) {
-      console.error('deleteChat error', err);
+      console.error('deleteChat error',err);
       alert('Ошибка при удалении чата');
+    }
+  };
+
+  const urlRegex = /https?:\/\/[^\s]+/gi;
+
+  const extractUrls = (text) => {
+    if (!text) return [];
+    return text.match(urlRegex) || [];
+  };
+
+  const getYouTubeId = (url) => {
+    try {
+      const u = new URL(url);
+      if (u.hostname.includes('youtube.com')) return u.searchParams.get('v') || (u.pathname.includes('shorts') ? u.pathname.split('/').pop() : null);
+      if (u.hostname.includes('youtu.be')) return u.pathname.slice(1);
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
+  const fetchYouTubeOEmbed = async (url) => {
+    try {
+      const oe = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
+      const res = await fetch(oe);
+      if (!res.ok) return null;
+      const j = await res.json();
+      return { title:j.title||'', description:j.author_name||'', image:j.thumbnail_url||'', url, isYouTube:true };
+    } catch {
+      return null;
+    }
+  };
+
+  const fetchHtmlPreview = async (url) => {
+    try {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 8000);
+      const res = await fetch(url, { method:'GET', headers:{ 'User-Agent':'Mozilla/5.0' }, signal:controller.signal, redirect:'follow' });
+      clearTimeout(id);
+      if (!res.ok) return null;
+      const txt = await res.text();
+      const ogTitle = (txt.match(/<meta[^>]*property=["']og:title["'][^>]*content=["']([^"']+)["']/i) || [])[1];
+      const titleTag = (txt.match(/<title[^>]*>([^<]+)<\/title>/i) || [])[1];
+      const ogDesc = (txt.match(/<meta[^>]*property=["']og:description["'][^>]*content=["']([^"']+)["']/i) || [])[1] || (txt.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i) || [])[1];
+      const ogImg = (txt.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i) || [])[1];
+      return { title:ogTitle || titleTag || null, description:ogDesc || '', image:ogImg || null, url, isYouTube:false };
+    } catch {
+      return null;
+    }
+  };
+
+  const domainFavicon = (url) => {
+    try {
+      const u = new URL(url);
+      return `https://www.google.com/s2/favicons?sz=128&domain=${u.hostname}`;
+    } catch {
+      return null;
+    }
+  };
+
+  const getLinkPreview = async (text) => {
+    const urls = extractUrls(text);
+    if (urls.length === 0) return null;
+    const first = urls[0];
+    const ytId = getYouTubeId(first);
+    if (ytId) {
+      const oe = await fetchYouTubeOEmbed(first);
+      if (oe) return oe;
+      return { title:'YouTube видео', description:'', image:`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`, url:first, isYouTube:true };
+    }
+    const htmlPreview = await fetchHtmlPreview(first);
+    if (htmlPreview) return htmlPreview;
+    const fav = domainFavicon(first);
+    return { title:first, description:'', image:fav, url:first, isYouTube:false };
+  };
+
+  const checkAndFillPreviews = async (msgs) => {
+    if (!db || !activeChat) return;
+    try {
+      for (const m of msgs) {
+        if (!m.preview && m.text && extractUrls(m.text).length > 0) {
+          const prev = await getLinkPreview(m.text);
+          if (prev) {
+            const msgDoc = doc(db, `chats/${activeChat.id}/messages`, m.id);
+            await updateDoc(msgDoc, { preview:prev });
+          }
+        }
+      }
+    } catch (e) {
+      console.error('fill preview error',e);
     }
   };
 
@@ -215,24 +297,27 @@ export default function ChatPage() {
       const file = fileRef.current?.files?.[0];
       if (file) {
         const path = `chat_media/${activeChat.id}/${Date.now()}_${file.name}`;
-        const sRef = storageRef(storage, path);
-        const uploadTask = uploadBytesResumable(sRef, file);
+        const sRef = storageRef(storage,path);
+        const uploadTask = uploadBytesResumable(sRef,file);
         await new Promise((res, rej) => uploadTask.on('state_changed', null, (err) => rej(err), () => res()));
-        mediaUrl = await getDownloadURL(storageRef(storage, path));
-        mediaMeta = { name: file.name, size: file.size, type: file.type };
+        mediaUrl = await getDownloadURL(storageRef(storage,path));
+        mediaMeta = { name:file.name, size:file.size, type:file.type };
         fileRef.current.value = null;
       }
+      let preview = null;
+      const urls = extractUrls(prevText.trim());
+      if (urls.length > 0) preview = await getLinkPreview(prevText.trim());
       const msgsColl = collection(db, `chats/${activeChat.id}/messages`);
-      const msg = { senderId: me.uid, text: prevText.trim() || '', createdAt: serverTimestamp(), mediaUrl: mediaUrl || null, mediaMeta: mediaMeta || null, type: mediaUrl ? 'media' : 'text' };
-      await addDoc(msgsColl, msg);
-      const chatDoc = doc(db, 'chats', activeChat.id);
-      await updateDoc(chatDoc, { lastMessage: msg.text ? msg.text : (mediaMeta?.name || 'Вложение'), lastUpdated: serverTimestamp(), lastMessageSender: me.uid });
+      const msg = { senderId:me.uid, text:prevText.trim()||'', createdAt:serverTimestamp(), mediaUrl:mediaUrl||null, mediaMeta:mediaMeta||null, type:mediaUrl ? 'media' : 'text', preview:preview||null };
+      await addDoc(msgsColl,msg);
+      const chatDoc = doc(db,'chats',activeChat.id);
+      await updateDoc(chatDoc, { lastMessage: msg.text ? msg.text : (mediaMeta?.name || (preview?.title || 'Вложение')), lastUpdated:serverTimestamp(), lastMessageSender:me.uid });
       setTimeout(() => {
         const el = messagesAreaRef.current || document.querySelector('.messages-area');
         if (el) el.scrollTop = el.scrollHeight;
-      }, 50);
+      },50);
     } catch (err) {
-      console.error('send error', err);
+      console.error('send error',err);
       alert('Ошибка при отправке сообщения');
     } finally {
       setSending(false);
@@ -242,12 +327,14 @@ export default function ChatPage() {
   const saveEditedMessage = async (msgId, newText) => {
     if (!activeChat || !msgId) return;
     try {
+      const urls = extractUrls(newText || '');
+      const preview = urls.length > 0 ? await getLinkPreview(newText) : null;
       const msgDoc = doc(db, `chats/${activeChat.id}/messages`, msgId);
-      await updateDoc(msgDoc, { text: newText.trim(), edited: true, editedAt: serverTimestamp() });
+      await updateDoc(msgDoc, { text:newText.trim(), edited:true, editedAt:serverTimestamp(), preview:preview||null });
       setEditingMessageId(null);
       setText('');
     } catch (err) {
-      console.error('edit error', err);
+      console.error('edit error',err);
       alert('Ошибка при редактировании');
     }
   };
@@ -260,14 +347,14 @@ export default function ChatPage() {
   };
 
   const getOtherParticipantMeta = (chat) => {
-    if (!chat || !me) return { displayName: 'Чат', photoURL: '' };
+    if (!chat || !me) return { displayName:'Чат', photoURL:'' };
     const partsMeta = chat.participantsMeta || {};
     const otherUid = (chat.participants || []).find((p) => p !== me.uid);
     if (otherUid) {
       const meta = partsMeta[otherUid] || {};
-      return { displayName: meta.displayName || meta.email || 'Пользователь', photoURL: meta.photoURL || '', uid: otherUid };
+      return { displayName:meta.displayName || meta.email || 'Пользователь', photoURL:meta.photoURL||'', uid:otherUid };
     }
-    return { displayName: 'Чат', photoURL: '' };
+    return { displayName:'Чат', photoURL:'' };
   };
 
   const computeOnline = (presence) => {
@@ -296,7 +383,7 @@ export default function ChatPage() {
 
   const slugify = (s) => {
     if (!s) return 'user';
-    return s.toString().toLowerCase().trim().replace(/[^a-z0-9а-яёё]+/g, '-').replace(/^-+|-+$/g, '');
+    return s.toString().toLowerCase().trim().replace(/[^a-z0-9а-яёё]+/g,'-').replace(/^-+|-+$/g,'');
   };
 
   const openProfile = (userObj) => {
@@ -316,16 +403,16 @@ export default function ChatPage() {
     }
     const start = input.selectionStart || 0;
     const end = input.selectionEnd || 0;
-    const newText = text.slice(0, start) + emoji + text.slice(end);
+    const newText = text.slice(0,start) + emoji + text.slice(end);
     setText(newText);
     setTimeout(() => {
       input.focus();
       const pos = start + emoji.length;
       input.selectionStart = input.selectionEnd = pos;
-    }, 0);
+    },0);
   };
 
-  const computeMenuPosition = (x, y) => {
+  const computeMenuPosition = (x,y) => {
     const menuW = 200;
     const menuH = 180;
     const pad = 12;
@@ -340,26 +427,26 @@ export default function ChatPage() {
     return { left, top };
   };
 
-  const onMessageContext = (e, m) => {
+  const onMessageContext = (e,m) => {
     if (!m || m.senderId !== me?.uid) return;
     e.preventDefault();
     const x = e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX) || window.innerWidth / 2;
     const y = e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY) || window.innerHeight / 2;
-    const pos = computeMenuPosition(x, y);
+    const pos = computeMenuPosition(x,y);
     setActionMenuPos(pos);
     setOpenActionMenuFor(m.id);
   };
 
-  const onMessageTouchStart = (e, m) => {
+  const onMessageTouchStart = (e,m) => {
     if (!m || m.senderId !== me?.uid) return;
     longPressTimer.current = setTimeout(() => {
       const touch = e.touches && e.touches[0];
       const x = touch ? touch.clientX : window.innerWidth / 2;
       const y = touch ? touch.clientY : window.innerHeight - 160;
-      const pos = computeMenuPosition(x, y);
+      const pos = computeMenuPosition(x,y);
       setActionMenuPos(pos);
       setOpenActionMenuFor(m.id);
-    }, 600);
+    },600);
   };
 
   const onMessageTouchEnd = () => {
@@ -386,7 +473,71 @@ export default function ChatPage() {
     setEditingMessageId(msgId);
     setText(originalText || '');
     setOpenActionMenuFor(null);
-    setTimeout(() => textInputRef.current && textInputRef.current.focus(), 60);
+    setTimeout(() => textInputRef.current && textInputRef.current.focus(),60);
+  };
+
+  const renderTextWithLinks = (t, previewUrl) => {
+    if (!t) return '';
+    const parts = t.split(urlRegex);
+    const urls = t.match(urlRegex) || [];
+    const nodes = [];
+    for (let i = 0; i < parts.length; i++) {
+      if (parts[i]) nodes.push(parts[i]);
+      if (urls[i]) {
+        const u = urls[i];
+        if (previewUrl && previewUrl === u) continue;
+        nodes.push(<a key={i} href={u} target="_blank" rel="noreferrer noopener">{u}</a>);
+      }
+    }
+    return nodes;
+  };
+
+  const renderPreview = (m) => {
+    if (!m.preview) return null;
+    const p = m.preview;
+    if (p.isYouTube) {
+      const ytId = getYouTubeId(p.url);
+      if (playingPreview === m.id) {
+        return (
+          <div className="link-preview youtube playing">
+            <div className="yt-iframe-wrap">
+              <iframe title={p.title || 'youtube'} src={`https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`} frameBorder="0" allow="autoplay; encrypted-media" allowFullScreen></iframe>
+            </div>
+            <div className="lp-meta">
+              <div className="lp-title">{p.title}</div>
+              {p.description && <div className="lp-desc">{p.description}</div>}
+              <div className="lp-domain">{(() => { try { return new URL(p.url).hostname.replace('www.',''); } catch { return ''; } })()}</div>
+            </div>
+          </div>
+        );
+      }
+      return (
+        <div className="link-preview youtube" onClick={() => setPlayingPreview(m.id)}>
+          <div className="lp-meta">
+            <div className="lp-title">{p.title}</div>
+            {p.description && <div className="lp-desc">{p.description}</div>}
+            <div className="lp-domain">{(() => { try { return new URL(p.url).hostname.replace('www.',''); } catch { return ''; } })()}</div>
+          </div>
+          <div className="yt-thumb" style={{ backgroundImage: `url(${p.image})` }}>
+            <div className="yt-overlay">
+              <svg viewBox="0 0 24 24" className="yt-play"><path d="M8 5v14l11-7z" /></svg>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <a className="link-preview site" href={p.url} target="_blank" rel="noreferrer noopener">
+        <div className="site-thumb">
+          {p.image ? <img src={p.image} alt={p.title || p.url} /> : <div className="lp-noimage"></div>}
+        </div>
+        <div className="lp-meta">
+          <div className="lp-title">{p.title || p.url}</div>
+          {p.description && <div className="lp-desc">{p.description}</div>}
+          <div className="lp-domain">{(() => { try { return new URL(p.url).hostname.replace('www.',''); } catch { return ''; } })()}</div>
+        </div>
+      </a>
+    );
   };
 
   return (
@@ -446,7 +597,7 @@ export default function ChatPage() {
                           <div className={`presence ${computeOnline(otherPresence) ? 'online' : 'offline'}`}></div>
                         </div>
                       ) : (
-                        <div className="avatar-placeholder" onClick={(e) => { e.stopPropagation(); openProfile(other); }}>{(other.displayName || 'U').slice(0, 1)}</div>
+                        <div className="avatar-placeholder" onClick={(e) => { e.stopPropagation(); openProfile(other); }}>{(other.displayName || 'U').slice(0,1)}</div>
                       )}
                     </div>
 
@@ -478,7 +629,7 @@ export default function ChatPage() {
           {searchResults.length > 0 && (
             <div className="search-results mobile-search-results">
               {searchResults.map((u) => (
-                <div key={u.uid || u.id} className="search-item" onClick={async () => { await openOrCreateChat(u); document.activeElement instanceof HTMLElement && document.activeElement.blur(); if (isMobile) window.scrollTo(0, 0); }}>
+                <div key={u.uid || u.id} className="search-item" onClick={async () => { await openOrCreateChat(u); document.activeElement instanceof HTMLElement && document.activeElement.blur(); if (isMobile) window.scrollTo(0,0); }}>
                   <img src={u.photoURL || '/default-avatar.png'} alt={u.displayName || u.email} />
                   <div className="meta">
                     <div className="name">{u.displayName || 'Без имени'}</div>
@@ -496,7 +647,7 @@ export default function ChatPage() {
               const otherPresence = allPresence[other.uid];
               const time = c.lastUpdated ? (c.lastUpdated.seconds ? new Date(c.lastUpdated.seconds * 1000).toLocaleTimeString() : '') : '';
               return (
-                <div key={c.id} className={`chat-row ${activeChat?.id === c.id ? 'active' : ''}`} onClick={() => { setActiveChat(c); setSearch(''); document.activeElement instanceof HTMLElement && document.activeElement.blur(); window.scrollTo(0, 0); }}>
+                <div key={c.id} className={`chat-row ${activeChat?.id === c.id ? 'active' : ''}`} onClick={() => { setActiveChat(c); setSearch(''); document.activeElement instanceof HTMLElement && document.activeElement.blur(); window.scrollTo(0,0); }}>
                   <div className="avatar-wrapper">
                     {other.photoURL ? (
                       <div className="presence-container">
@@ -504,7 +655,7 @@ export default function ChatPage() {
                         <div className={`presence ${computeOnline(otherPresence) ? 'online' : 'offline'}`}></div>
                       </div>
                     ) : (
-                      <div className="avatar-placeholder" onClick={(e) => { e.stopPropagation(); openProfile(other); }}>{(other.displayName || 'U').slice(0, 1)}</div>
+                      <div className="avatar-placeholder" onClick={(e) => { e.stopPropagation(); openProfile(other); }}>{(other.displayName || 'U').slice(0,1)}</div>
                     )}
                   </div>
 
@@ -556,18 +707,12 @@ export default function ChatPage() {
                 {messages.map((m) => {
                   const mine = m.senderId === me.uid;
                   return (
-                    <div
-                      key={m.id}
-                      className={`message-row-wrapper ${mine ? 'mine-row' : 'their-row'}`}
-                      onContextMenu={(e) => onMessageContext(e, m)}
-                      onTouchStart={(e) => onMessageTouchStart(e, m)}
-                      onTouchEnd={onMessageTouchEnd}
-                      onTouchMove={onMessageTouchEnd}
-                    >
+                    <div key={m.id} className={`message-row-wrapper ${mine ? 'mine-row' : 'their-row'}`} onContextMenu={(e) => onMessageContext(e,m)} onTouchStart={(e) => onMessageTouchStart(e,m)} onTouchEnd={onMessageTouchEnd} onTouchMove={onMessageTouchEnd}>
                       <div className={`message ${mine ? 'mine' : 'their'}`}>
                         <div className="message-row">
                           <div className="message-body">
-                            <div className="message-text">{m.text}</div>
+                            <div className="message-text">{renderTextWithLinks(m.text, m.preview?.url)}</div>
+                            {renderPreview(m)}
                             {m.mediaUrl && (
                               <div className="message-media">
                                 {m.mediaMeta?.type?.startsWith('image') ? (
@@ -606,13 +751,13 @@ export default function ChatPage() {
                   )}
                 </div>
 
-                <input ref={fileRef} type="file" style={{ display: 'none' }} />
+                <input ref={fileRef} type="file" style={{ display:'none' }} />
 
                 <button className="send-btn" onClick={handleComposerSubmit} disabled={sending}>{editingMessageId ? 'Изменить' : (sending ? 'Отправка...' : 'Отправить')}</button>
               </div>
 
               {openActionMenuFor && (
-                <div className={`action-menu ${isMobile ? 'action-sheet' : 'action-popover'}`} style={!isMobile ? { left: actionMenuPos.left, top: actionMenuPos.top } : {}}>
+                <div className={`action-menu ${isMobile ? 'action-sheet' : 'action-popover'}`} style={!isMobile ? { left:actionMenuPos.left, top:actionMenuPos.top } : {}}>
                   <button onClick={() => { const msg = messages.find((mm) => mm.id === openActionMenuFor); startEditIncoming(openActionMenuFor, msg?.text || ''); }}>Изменить</button>
                   <button onClick={() => { removeMessage(openActionMenuFor); setOpenActionMenuFor(null); }}>Удалить</button>
                   <button onClick={() => setOpenActionMenuFor(null)}>Отмена</button>
